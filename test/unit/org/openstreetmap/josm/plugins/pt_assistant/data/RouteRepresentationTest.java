@@ -163,7 +163,7 @@ public class RouteRepresentationTest extends AbstractTest {
         boolean thrown = false;
         String message = "";
         try {
-            PTRouteDataManager manager = new PTRouteDataManager(route);
+            /*PTRouteDataManager manager =*/ new PTRouteDataManager(route);
         } catch(IllegalArgumentException e) {
             thrown = true;
             message = e.getMessage();

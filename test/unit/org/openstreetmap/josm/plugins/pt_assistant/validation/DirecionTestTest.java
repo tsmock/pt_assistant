@@ -42,7 +42,6 @@ public class DirecionTestTest extends AbstractTest {
         List<TestError> errors = directionTest.getErrors();
         assertEquals(errors.size(), 1);
         int onewayErrorCaught = 0;
-        int roundaboutErrorCaught = 0;
         for (TestError e: errors ) {
             if (e.getCode() == DirectionTest.ERROR_CODE_DIRECTION) {
                 onewayErrorCaught++;
@@ -56,6 +55,7 @@ public class DirecionTestTest extends AbstractTest {
         boolean detectedErrorsAreCorrect = true;
         for (TestError e: errors) {
             if (e.getCode() == DirectionTest.ERROR_CODE_DIRECTION) {
+                @SuppressWarnings("unchecked")
                 List<OsmPrimitive> highlighted = (List<OsmPrimitive>) e.getHighlighted();
                 if (highlighted.get(0).getId() != 26130630 && highlighted.get(0).getId() != 151278290)  {
                     detectedErrorsAreCorrect = false;

@@ -48,22 +48,22 @@ public class GapTestTest extends AbstractTest {
 
     // TODO: this test will only pass after the functionality for recognizing
     // and closing the gap is implemented.
-//	@Test
-//	public void overshootTestBeforeFile() {
-//		File file = new File(AbstractTest.PATH_TO_DL286_BEFORE);
-//		DataSet ds = ImportUtils.importOsmFile(file, "testLayer");
+//    @Test
+//    public void overshootTestBeforeFile() {
+//        File file = new File(AbstractTest.PATH_TO_DL286_BEFORE);
+//        DataSet ds = ImportUtils.importOsmFile(file, "testLayer");
 //
-//		GapTest gapTest = new GapTest();
-//		for (Relation r : ds.getRelations()) {
-//			gapTest.visit(r);
-//		}
+//        GapTest gapTest = new GapTest();
+//        for (Relation r : ds.getRelations()) {
+//            gapTest.visit(r);
+//        }
 //
-//		List<TestError> errors = gapTest.getErrors();
+//        List<TestError> errors = gapTest.getErrors();
 //
-//		assertEquals(errors.size(), 1);
-//		assertEquals(errors.get(0).getCode(), GapTest.ERROR_CODE_OVERSHOOT);
+//        assertEquals(errors.size(), 1);
+//        assertEquals(errors.get(0).getCode(), GapTest.ERROR_CODE_OVERSHOOT);
 //
-//	}
+//    }
 
     @Test
     public void overshootTestAfterFile() {
