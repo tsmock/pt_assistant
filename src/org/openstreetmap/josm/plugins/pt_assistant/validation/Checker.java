@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import org.openstreetmap.josm.plugins.pt_assistant.utils.RouteUtils;
 
 /**
  * Represents tests and fixed of the PT_Assistant plugin
- * 
+ *
  * @author darya
  *
  */
@@ -63,7 +64,7 @@ public abstract class Checker {
     /**
      * Returns a list of stop-related route relation members with corrected
      * roles (if necessary)
-     * 
+     *
      * @return list of stop-related route relation members
      */
     protected static List<RelationMember> listStopMembers(Relation r) {
@@ -100,12 +101,12 @@ public abstract class Checker {
     /**
      * Returns a list of other (not stop-related) route relation members with
      * corrected roles (if necessary)
-     * 
+     *
      * @return list of other (not stop-related) route relation members
      */
     protected static List<RelationMember> listNotStopMembers(Relation r) {
 
-        List<RelationMember> resultList = new ArrayList<RelationMember>();
+        List<RelationMember> resultList = new ArrayList<>();
 
         for (RelationMember rm : r.getMembers()) {
 
@@ -126,11 +127,6 @@ public abstract class Checker {
         return resultList;
     }
 
-    /**
-     * 
-     * @param testError
-     * @return
-     */
     protected static Command fixErrorByZooming(TestError testError) {
 
         if (testError.getCode() != PTAssistantValidatorTest.ERROR_CODE_STOP_BY_STOP

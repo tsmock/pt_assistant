@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -32,8 +33,6 @@ public class NodeChecker extends Checker {
 
     /**
      * Checks if the given stop_position node belongs to any way
-     * 
-     * @param n
      */
     protected void performSolitaryStopPositionTest() {
 
@@ -59,8 +58,6 @@ public class NodeChecker extends Checker {
 
     /**
      * Checks if the given platform node belongs to any way
-     * 
-     * @param n
      */
     protected void performPlatformPartOfWayTest() {
 
@@ -85,7 +82,6 @@ public class NodeChecker extends Checker {
     /**
      * Checks if the given stop_position node belongs to any stop_area relation
      * @author xamanu
-     * @param n
      */
     protected void performNodePartOfStopAreaTest() {
 
@@ -103,9 +99,9 @@ public class NodeChecker extends Checker {
     /**
      * Fixes errors: solitary stop position and platform which is part of a way.
      * Asks the user first.
-     * 
-     * @param testError
-     * @return
+     *
+     * @param testError test error
+     * @return fix command
      */
     protected static Command fixError(TestError testError) {
 
@@ -116,7 +112,7 @@ public class NodeChecker extends Checker {
 
         Node problematicNode = (Node) testError.getPrimitives().iterator().next();
 
-        final int[] userSelection = { JOptionPane.YES_OPTION };
+        final int[] userSelection = {JOptionPane.YES_OPTION};
         final TestError errorParameter = testError;
         if (SwingUtilities.isEventDispatchThread()) {
 
@@ -163,7 +159,7 @@ public class NodeChecker extends Checker {
         primitives.add(problematicNode);
         AutoScaleAction.zoomTo(primitives);
 
-        String[] options = { tr("Yes"), tr("No") };
+        String[] options = {tr("Yes"), tr("No")};
         String message;
         if (e.getCode() == PTAssistantValidatorTest.ERROR_CODE_SOLITARY_STOP_POSITION) {
             message = "Do you want to change the tag public_transport=stop_position to public_transport=platform?";

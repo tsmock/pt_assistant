@@ -1,4 +1,4 @@
-//License: GPL. For details, see LICENSE file.
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant;
 
 import javax.swing.JMenuItem;
@@ -21,7 +21,7 @@ import org.openstreetmap.josm.plugins.pt_assistant.validation.PTAssistantValidat
  * This is the main class of the PTAssistant plugin.
  *
  * @author darya / Darya Golovko
- * 
+ *
  */
 public class PTAssistantPlugin extends Plugin {
 
@@ -33,7 +33,7 @@ public class PTAssistantPlugin extends Plugin {
 
     /* item of the Tools menu for adding stop_positions */
     private JMenuItem addStopPositionMenu;
-    
+
     /* item of the Tools menu for repeating the last fix */
     private static JMenuItem repeatLastFixMenu;
 
@@ -84,7 +84,7 @@ public class PTAssistantPlugin extends Plugin {
 
     /**
      * Remembers the last fix and enables/disables the Repeat last fix menu
-     * 
+     *
      * @param segment
      *            The last fix, call be null to disable the Repeat last fix menu
      */
@@ -101,8 +101,8 @@ public class PTAssistantPlugin extends Plugin {
 
     /**
      * Used in unit tests
-     * 
-     * @param segment
+     *
+     * @param segment route segment
      */
     public static void setLastFixNoGui(PTRouteSegment segment) {
         lastFix = segment;

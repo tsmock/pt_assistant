@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
 
 import static org.junit.Assert.assertEquals;
@@ -26,23 +27,23 @@ public class AdjacentWaysTest extends AbstractTest {
         PTAssistantValidatorTest test = new PTAssistantValidatorTest();
         long id = 24215210;
         Way way = (Way) ds.getPrimitiveById(id, OsmPrimitiveType.WAY);
-        
+
         assertEquals(RouteUtils.isOnewayForPublicTransport(way), -1);
-        
+
         Relation route = null;
         for (Relation r : ds.getRelations()) {
             if (r.hasKey("route")) {
                 route = r;
             }
         }
-        
+
         WayChecker wayChecker = new WayChecker(route, test);
         Set<Way> set = wayChecker.checkAdjacentWays(way, new HashSet<Way>());
-        
+
         assertEquals(set.size(), 1);
 
     }
-    
+
     @Test
     public void test2() {
 
@@ -52,9 +53,9 @@ public class AdjacentWaysTest extends AbstractTest {
         PTAssistantValidatorTest test = new PTAssistantValidatorTest();
         long id = 24215210;
         Way way = (Way) ds.getPrimitiveById(id, OsmPrimitiveType.WAY);
-        
+
         assertEquals(RouteUtils.isOnewayForPublicTransport(way), -1);
-        
+
         Relation route = null;
         for (Relation r : ds.getRelations()) {
             if (r.hasKey("route")) {
@@ -64,7 +65,7 @@ public class AdjacentWaysTest extends AbstractTest {
 
         WayChecker wayChecker = new WayChecker(route, test);
         Set<Way> set = wayChecker.checkAdjacentWays(way, new HashSet<Way>());
-        
+
         assertEquals(set.size(), 2);
 
     }

@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.utils;
 
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -5,11 +6,11 @@ import org.openstreetmap.josm.data.osm.Relation;
 
 /**
  * Utils class for stop areas
- * 
+ *
  * @author
  *
  */
-public class StopUtils {
+public final class StopUtils {
 
     private StopUtils() {
         // private constructor for util classes
@@ -17,7 +18,7 @@ public class StopUtils {
 
     /**
      * Checks if a given relation is a stop_area.
-     * 
+     *
      * @param r
      *            Relation to be checked
      * @return true if the relation is a stop_area, false otherwise.
@@ -36,7 +37,7 @@ public class StopUtils {
 
     /**
      * Checks if a given object is a stop_position.
-     * 
+     *
      * @param r
      *            Relation to be checked
      * @return true if the object is a stop_position, false otherwise.
@@ -55,7 +56,7 @@ public class StopUtils {
 
     /**
      * Checks if a given object is a platform.
-     * 
+     *
      * @param r
      *            Relation to be checked
      * @return true if the object is a platform, false otherwise.
@@ -75,7 +76,7 @@ public class StopUtils {
 
     /**
      * Checks if a given object is part of an stop area relation
-     * 
+     *
      * @param r
      *            Object to be checked
      * @return true if the object part of stop area relation, false otherwise.

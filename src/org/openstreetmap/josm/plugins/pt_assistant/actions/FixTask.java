@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.actions;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -19,18 +20,18 @@ import org.xml.sax.SAXException;
 
 /**
  * This class was copied with minor changes from ValidatorDialog.FixTask
- * 
+ *
  * @author darya
  *
  */
-public class FixTask extends PleaseWaitRunnable { 
-    
+public class FixTask extends PleaseWaitRunnable {
+
     private final Collection<TestError> testErrors;
     private boolean canceled;
 
     public FixTask(Collection<TestError> testErrors) {
         super(tr("Fixing errors ..."), false /* don't ignore exceptions */);
-        this.testErrors = testErrors == null ? new ArrayList<TestError>() : testErrors;
+        this.testErrors = testErrors == null ? new ArrayList<>() : testErrors;
     }
 
     @Override
@@ -110,7 +111,7 @@ public class FixTask extends PleaseWaitRunnable {
         } finally {
             monitor.finishTask();
         }
-        
+
     }
 
 }

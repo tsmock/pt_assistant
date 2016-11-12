@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.actions;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -20,14 +21,14 @@ import org.openstreetmap.josm.tools.Shortcut;
 
 /**
  * Action to add stop position and split the relevant way
- * 
+ *
  * @author darya
  *
  */
 public class AddStopPositionAction extends JosmAction {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -5140181388906670207L;
 
@@ -47,17 +48,16 @@ public class AddStopPositionAction extends JosmAction {
         if (!isEnabled() || !Main.isDisplayingMapView()) {
             return;
         }
-        
+
         final ActionEvent actionEventParameter = e;
 
         Main.map.mapView.addMouseListener(new MouseAdapter() {
 
             LatLon clickPosition;
 
-
             @Override
             public void mouseClicked(MouseEvent e) {
-                
+
                 if (clickPosition == null) {
                     clickPosition = Main.map.mapView.getLatLon(e.getX(), e.getY());
 
@@ -71,11 +71,11 @@ public class AddStopPositionAction extends JosmAction {
                         osmDataLayer.data.addPrimitive(newNode);
                         osmDataLayer.data.setSelected(newNode);
                         Main.map.mapView.repaint();
-                        
+
                         // make the stop position node part of the way:
                         JoinNodeWayAction joinNodeWayAction = JoinNodeWayAction.createJoinNodeToWayAction();
                         joinNodeWayAction.actionPerformed(actionEventParameter);
-                        
+
                         // split the way:
                         SplitWayAction splitWayAction = new SplitWayAction();
                         splitWayAction.actionPerformed(actionEventParameter);

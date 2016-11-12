@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.gui;
 
 import java.awt.Color;
@@ -26,7 +27,7 @@ import org.openstreetmap.josm.tools.Pair;
 
 /**
  * Visits the primitives to be visualized in the pt_assistant layer
- * 
+ *
  * @author darya
  *
  */
@@ -39,9 +40,9 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
 
     /**
      * Constructor
-     * 
-     * @param g
-     * @param mv
+     *
+     * @param g graphics
+     * @param mv map view
      */
     public PTAssistantPaintVisitor(Graphics g, MapView mv) {
         super(g, mv);
@@ -64,14 +65,14 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
                     visit(rm.getWay());
                 } else if (rm.isRelation()) {
                     visit(rm.getRelation());
-                } else {
+                } //else {
                     // if the relation has members that do not fit with the
                     // PT_Assistant data model, do nothing
-                }
-            } else {
+                //}
+            } //else {
                 // if the relation has members that do not fit with the
                 // PT_Assistant data model, do nothing
-            }
+            //}
         }
 
         // in the end, draw labels:
@@ -104,6 +105,7 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
                     drawStopLabel(rm.getMember(), label);
                 } catch (NullPointerException ex) {
                     // do nothing
+                    Main.trace(ex);
                 }
                 stopCount++;
             }
@@ -155,9 +157,9 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
     /**
      * Variation of the visit method that allows a special visualization of
      * oneway roads
-     * 
-     * @param nodes
-     * @param oneway
+     *
+     * @param nodes nodes
+     * @param oneway oneway
      */
     public void visit(List<Node> nodes, int oneway) {
         Node lastN = null;
@@ -200,6 +202,7 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
                 drawSegment(mv.getPoint(n1), mv.getPoint(n2), color, oneway);
             } catch (NullPointerException ex) {
                 // do nothing
+                Main.trace(ex);
             }
 
         }
@@ -221,48 +224,48 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
         double cosT = 9 * Math.cos(t);
         double sinT = 9 * Math.sin(t);
 
-        int[] xPoints = { (int) (p1.x + cosT), (int) (p2.x + cosT), (int) (p2.x - cosT), (int) (p1.x - cosT) };
-        int[] yPoints = { (int) (p1.y - sinT), (int) (p2.y - sinT), (int) (p2.y + sinT), (int) (p1.y + sinT) };
+        int[] xPoints = {(int) (p1.x + cosT), (int) (p2.x + cosT), (int) (p2.x - cosT), (int) (p1.x - cosT)};
+        int[] yPoints = {(int) (p1.y - sinT), (int) (p2.y - sinT), (int) (p2.y + sinT), (int) (p1.y + sinT)};
         g.setColor(color);
         g.fillPolygon(xPoints, yPoints, 4);
-        g.fillOval((int) (p1.x - 9), (int) (p1.y - 9), 18, 18);
-        g.fillOval((int) (p2.x - 9), (int) (p2.y - 9), 18, 18);
+        g.fillOval(p1.x - 9, p1.y - 9, 18, 18);
+        g.fillOval(p2.x - 9, p2.y - 9, 18, 18);
 
         if (oneway != 0) {
-            double middleX = (double) (p1.x + p2.x) / 2.0;
-            double middleY = (double) (p1.y + p2.y) / 2.0;
+            double middleX = (p1.x + p2.x) / 2.0;
+            double middleY = (p1.y + p2.y) / 2.0;
             double cosTriangle = 6 * Math.cos(t);
             double sinTriangle = 6 * Math.sin(t);
             g.setColor(Color.WHITE);
 
             if (oneway > 0) {
-                int[] xFillTriangle = { (int) (middleX + cosTriangle), (int) (middleX - cosTriangle),
-                        (int) (middleX + 2 * sinTriangle) };
-                int[] yFillTriangle = { (int) (middleY - sinTriangle), (int) (middleY + sinTriangle),
-                        (int) (middleY + 2 * cosTriangle) };
+                int[] xFillTriangle = {(int) (middleX + cosTriangle), (int) (middleX - cosTriangle),
+                        (int) (middleX + 2 * sinTriangle)};
+                int[] yFillTriangle = {(int) (middleY - sinTriangle), (int) (middleY + sinTriangle),
+                        (int) (middleY + 2 * cosTriangle)};
                 g.fillPolygon(xFillTriangle, yFillTriangle, 3);
 
                 if (oneway == 2) {
-                    int[] xDrawTriangle = { (int) (middleX + cosTriangle), (int) (middleX - cosTriangle),
-                            (int) (middleX - 2 * sinTriangle) };
-                    int[] yDrawTriangle = { (int) (middleY - sinTriangle), (int) (middleY + sinTriangle),
-                            (int) (middleY - 2 * cosTriangle) };
+                    int[] xDrawTriangle = {(int) (middleX + cosTriangle), (int) (middleX - cosTriangle),
+                            (int) (middleX - 2 * sinTriangle)};
+                    int[] yDrawTriangle = {(int) (middleY - sinTriangle), (int) (middleY + sinTriangle),
+                            (int) (middleY - 2 * cosTriangle)};
                     g.drawPolygon(xDrawTriangle, yDrawTriangle, 3);
                 }
             }
 
             if (oneway < 0) {
-                int[] xFillTriangle = { (int) (middleX + cosTriangle), (int) (middleX - cosTriangle),
-                        (int) (middleX - 2 * sinTriangle) };
-                int[] yFillTriangle = { (int) (middleY - sinTriangle), (int) (middleY + sinTriangle),
-                        (int) (middleY - 2 * cosTriangle) };
+                int[] xFillTriangle = {(int) (middleX + cosTriangle), (int) (middleX - cosTriangle),
+                        (int) (middleX - 2 * sinTriangle)};
+                int[] yFillTriangle = {(int) (middleY - sinTriangle), (int) (middleY + sinTriangle),
+                        (int) (middleY - 2 * cosTriangle)};
                 g.fillPolygon(xFillTriangle, yFillTriangle, 3);
 
                 if (oneway == -2) {
-                    int[] xDrawTriangle = { (int) (middleX + cosTriangle), (int) (middleX - cosTriangle),
-                            (int) (middleX + 2 * sinTriangle) };
-                    int[] yDrawTriangle = { (int) (middleY - sinTriangle), (int) (middleY + sinTriangle),
-                            (int) (middleY + 2 * cosTriangle) };
+                    int[] xDrawTriangle = {(int) (middleX + cosTriangle), (int) (middleX - cosTriangle),
+                            (int) (middleX + 2 * sinTriangle)};
+                    int[] yDrawTriangle = {(int) (middleY - sinTriangle), (int) (middleY + sinTriangle),
+                            (int) (middleY + 2 * cosTriangle)};
                     g.drawPolygon(xDrawTriangle, yDrawTriangle, 3);
                 }
             }
@@ -273,12 +276,13 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
 
     /**
      * Draws a circle around the node
-     * 
+     *
      * @param n
      *            The node
      * @param color
      *            The circle color
      */
+    @Override
     protected void drawNode(Node n, Color color) {
 
         Point p = mv.getPoint(n);
@@ -290,8 +294,8 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
 
     /**
      * Draws s stop_position as a blue circle; draws a platform as a blue square
-     * 
-     * @param primitive
+     *
+     * @param primitive primitive
      */
     protected void drawStop(OsmPrimitive primitive) {
 
@@ -313,9 +317,9 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
     /**
      * Draws the labels for the stops, which include the ordered position of the
      * stop in the route and the ref numbers of other routes that use this stop
-     * 
-     * @param primitive
-     * @param label
+     *
+     * @param primitive primitive
+     * @param label label
      */
     protected void drawStopLabel(OsmPrimitive primitive, String label) {
 
@@ -434,15 +438,19 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
 
     /**
      * Visualizes the fix variants, assigns colors to them based on their order
-     * @param fixVariants
+     * @param fixVariants fix variants
      */
     protected void visitFixVariants(HashMap<Character, List<PTWay>> fixVariants,
             HashMap<Way, List<Character>> wayColoring) {
 
         drawFixVariantsWithParallelLines(wayColoring, fixVariants.size());
 
-        Color[] colors = { new Color(255, 0, 0, 150), new Color(0, 255, 0, 150), new Color(0, 0, 255, 150),
-                new Color(255, 255, 0, 150), new Color(0, 255, 255, 150) };
+        Color[] colors = {
+                new Color(255, 0, 0, 150),
+                new Color(0, 255, 0, 150),
+                new Color(0, 0, 255, 150),
+                new Color(255, 255, 0, 150),
+                new Color(0, 255, 255, 150)};
 
         int colorIndex = 0;
 
@@ -464,11 +472,6 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
         }
     }
 
-    /**
-     * 
-     * @param fixVariant
-     * @param color
-     */
     @SuppressWarnings("unused")
     private void drawFixVariant(List<PTWay> fixVariant, Color color) {
         for (PTWay ptway : fixVariant) {
@@ -480,10 +483,6 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
         }
     }
 
-    /**
-     * 
-     * @param wayColoring
-     */
     protected void drawFixVariantsWithParallelLines(Map<Way, List<Character>> wayColoring, int numberOfFixVariants) {
 
         HashMap<Character, Color> colors = new HashMap<>();
@@ -505,12 +504,6 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
         }
     }
 
-    /**
-     * 
-     * @param n1
-     * @param n2
-     * @param color
-     */
     protected void drawSegmentWithParallelLines(Node n1, Node n2, List<Color> colors) {
         if (!n1.isDrawable() || !n2.isDrawable() || !isSegmentVisible(n1, n2)) {
             return;
@@ -532,11 +525,11 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
         Color currentColor = colors.get(0);
         int i = 0;
         g.setColor(currentColor);
-        g.fillOval((int) (p1.x - 9), (int) (p1.y - 9), 18, 18);
+        g.fillOval(p1.x - 9, p1.y - 9, 18, 18);
 
         if (colors.size() == 1) {
-            int[] xPoints = { (int) (p1.x + cosT), (int) (p2.x + cosT), (int) (p2.x - cosT), (int) (p1.x - cosT) };
-            int[] yPoints = { (int) (p1.y - sinT), (int) (p2.y - sinT), (int) (p2.y + sinT), (int) (p1.y + sinT) };
+            int[] xPoints = {(int) (p1.x + cosT), (int) (p2.x + cosT), (int) (p2.x - cosT), (int) (p1.x - cosT)};
+            int[] yPoints = {(int) (p1.y - sinT), (int) (p2.y - sinT), (int) (p2.y + sinT), (int) (p1.y + sinT)};
             g.setColor(currentColor);
             g.fillPolygon(xPoints, yPoints, 4);
         } else {
@@ -544,10 +537,10 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
             while (iterate) {
                 currentColor = colors.get(i % colors.size());
 
-                int[] xPoints = { (int) (prevPointX + cosT), (int) (nextPointX + cosT), (int) (nextPointX - cosT),
-                        (int) (prevPointX - cosT) };
-                int[] yPoints = { (int) (prevPointY - sinT), (int) (nextPointY - sinT), (int) (nextPointY + sinT),
-                        (int) (prevPointY + sinT) };
+                int[] xPoints = {(int) (prevPointX + cosT), (int) (nextPointX + cosT), (int) (nextPointX - cosT),
+                        (int) (prevPointX - cosT)};
+                int[] yPoints = {(int) (prevPointY - sinT), (int) (nextPointY - sinT), (int) (nextPointY + sinT),
+                        (int) (prevPointY + sinT)};
                 g.setColor(currentColor);
                 g.fillPolygon(xPoints, yPoints, 4);
 
@@ -561,24 +554,24 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
                 }
             }
 
-            int[] lastXPoints = { (int) (prevPointX + cosT), (int) (p2.x + cosT), (int) (p2.x - cosT),
-                    (int) (prevPointX - cosT) };
-            int[] lastYPoints = { (int) (prevPointY - sinT), (int) (p2.y - sinT), (int) (p2.y + sinT),
-                    (int) (prevPointY + sinT) };
+            int[] lastXPoints = {(int) (prevPointX + cosT), (int) (p2.x + cosT), (int) (p2.x - cosT),
+                    (int) (prevPointX - cosT)};
+            int[] lastYPoints = {(int) (prevPointY - sinT), (int) (p2.y - sinT), (int) (p2.y + sinT),
+                    (int) (prevPointY + sinT)};
             g.setColor(currentColor);
             g.fillPolygon(lastXPoints, lastYPoints, 4);
         }
 
         g.setColor(currentColor);
-        g.fillOval((int) (p2.x - 9), (int) (p2.y - 9), 18, 18);
+        g.fillOval(p2.x - 9, p2.y - 9, 18, 18);
     }
 
     /**
      * Visuallizes the letters for each fix variant
-     * @param letter
-     * @param color
-     * @param letterX
-     * @param letterY
+     * @param letter letter
+     * @param color color
+     * @param letterX letter X
+     * @param letterY letter Y
      */
     private void drawFixVariantLetter(String letter, Color color, double letterX, double letterY) {
         g.setColor(color);
@@ -589,6 +582,7 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
             g.drawString(letter, (int) letterX, (int) letterY);
         } catch (NullPointerException ex) {
             // do nothing
+            Main.trace(ex);
         }
 
     }

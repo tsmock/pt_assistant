@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.data;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import org.openstreetmap.josm.plugins.pt_assistant.utils.RouteUtils;
 /**
  * Creates a representation of a route relation in the pt_assistant data model,
  * then maintains a list of PTStops and PTWays of a route.
- * 
+ *
  * @author darya
  *
  */
@@ -125,9 +126,9 @@ public class PTRouteDataManager {
      * Calculates the squared distance between the centers of bounding boxes of
      * two relation members (which are supposed to be platforms or
      * stop_positions)
-     * 
-     * @param member1
-     * @param member2
+     *
+     * @param member1 first member
+     * @param member2 second member
      * @return Squared distance between the centers of the bounding boxes of the
      *         given relation members
      */
@@ -140,7 +141,7 @@ public class PTRouteDataManager {
     /**
      * Assigns the given way to a PTWay of this route relation. If multiple
      * PTWays contain the same inputWay, the first found PTWay is returned.
-     * 
+     *
      * @param inputWay
      *            Way to be assigned to a PTWAy of this route relation
      * @return PTWay that contains the geometry of the inputWay, null if not
@@ -203,8 +204,8 @@ public class PTRouteDataManager {
 
     /**
      * Returns the route relation for which this manager was created:
-     * 
-     * @return
+     *
+     * @return the route relation for which this manager was created
      */
     public Relation getRelation() {
         return this.relation;
@@ -212,9 +213,9 @@ public class PTRouteDataManager {
 
     /**
      * Returns a PTStop that matches the given id. Returns null if not found
-     * 
-     * @param id
-     * @return
+     *
+     * @param id identifier
+     * @return a PTStop that matches the given id. Returns null if not found
      */
     public PTStop getPTStop(long id) {
         for (PTStop stop : this.ptstops) {
@@ -232,9 +233,9 @@ public class PTRouteDataManager {
 
     /**
      * Returns a PTWay that matches the given id. Returns null if not found
-     * 
-     * @param id
-     * @return
+     *
+     * @param id identifier
+     * @return a PTWay that matches the given id. Returns null if not found
      */
     public PTWay getPTWay(long id) {
         for (PTWay ptway : this.ptways) {
@@ -249,9 +250,9 @@ public class PTRouteDataManager {
 
     /**
      * Returns all PTWays of this route that contain the given way.
-     * 
-     * @param way
-     * @return
+     *
+     * @param way way
+     * @return all PTWays of this route that contain the given way
      */
     public List<PTWay> findPTWaysThatContain(Way way) {
 
@@ -267,8 +268,9 @@ public class PTRouteDataManager {
     /**
      * Returns all PTWays of this route that contain the given node as their
      * first or last node.
-     * 
-     * @return
+     *
+     * @return all PTWays of this route that contain the given node as their
+     * first or last node
      */
     public List<PTWay> findPTWaysThatContainAsEndNode(Node node) {
 
@@ -286,9 +288,9 @@ public class PTRouteDataManager {
 
     /**
      * Checks if at most one PTWay of this route refers to the given node
-     * 
-     * @param node
-     * @return
+     *
+     * @param node node
+     * @return {@code true} if at most one PTWay of this route refers to the given node
      */
     public boolean isDeadendNode(Node node) {
 
@@ -302,9 +304,10 @@ public class PTRouteDataManager {
     /**
      * Returns the PTWay which comes directly after the given ptway according to
      * the existing route member sorting
-     * 
-     * @param ptway
-     * @return
+     *
+     * @param ptway way
+     * @return the PTWay which comes directly after the given ptway according to
+     * the existing route member sorting
      */
     public PTWay getNextPTWay(PTWay ptway) {
 
@@ -320,9 +323,10 @@ public class PTRouteDataManager {
     /**
      * Returns the PTWay which comes directly before the given ptway according
      * to the existing route member sorting
-     * 
-     * @param ptway
-     * @return
+     *
+     * @param ptway way
+     * @return the PTWay which comes directly before the given ptway according
+     * to the existing route member sorting
      */
     public PTWay getPreviousPTWay(PTWay ptway) {
 
@@ -337,10 +341,10 @@ public class PTRouteDataManager {
     /**
      * Returns a sequence of PTWays that are between the start way and the end
      * way. The resulting list includes the start and end PTWays.
-     * 
-     * @param start
-     * @param end
-     * @return
+     *
+     * @param start start way
+     * @param end end way
+     * @return a sequence of PTWays that are between the start way and the end way
      */
     public List<PTWay> getPTWaysBetween(Way start, Way end) {
 
@@ -360,14 +364,14 @@ public class PTRouteDataManager {
         for (Integer potentialStartIndex : potentialStartIndices) {
             for (Integer potentialEndIndex : potentialEndIndices) {
                 if (potentialStartIndex <= potentialEndIndex) {
-                    int[] pair = { potentialStartIndex, potentialEndIndex };
+                    int[] pair = {potentialStartIndex, potentialEndIndex};
                     pairList.add(pair);
                 }
             }
         }
 
         int minDifference = Integer.MAX_VALUE;
-        int[] mostSuitablePair = { 0, 0 };
+        int[] mostSuitablePair = {0, 0};
         for (int[] pair : pairList) {
             int diff = pair[1] - pair[0];
             if (diff < minDifference) {
@@ -386,10 +390,10 @@ public class PTRouteDataManager {
     /**
      * Returns the common Node of two PTWays or null if there is no common Node.
      * If there is more than one common Node, only the first found is returned.
-     * 
-     * @param way1
-     * @param way2
-     * @return
+     *
+     * @param way1 first way
+     * @param way2 second way
+     * @return the common Node of two PTWays or null if there is no common Node
      */
     public Node getCommonNode(PTWay way1, PTWay way2) {
 
@@ -416,8 +420,8 @@ public class PTRouteDataManager {
 
     /**
      * Returns the last way of this route
-     * 
-     * @return
+     *
+     * @return the last way of this route
      */
     public Way getLastWay() {
         PTWay lastPTWay = this.ptways.get(ptways.size() - 1);

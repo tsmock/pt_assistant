@@ -1,9 +1,11 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.plugins.pt_assistant.AbstractTest;

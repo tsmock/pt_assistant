@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.actions;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class DownloadReferrersThread extends Thread {
         synchronized (this) {
 
             Collection<Node> allNodes = node.getDataSet().getNodes();
-            List<PrimitiveId> nodesToBeDownloaded = new ArrayList<PrimitiveId>();
+            List<PrimitiveId> nodesToBeDownloaded = new ArrayList<>();
             for (Node currNode : allNodes) {
                 if (currNode.hasTag("public_transport", "stop_position") || currNode.hasTag("highway", "bus_stop")
                         || currNode.hasTag("public_transport", "platform") || currNode.hasTag("highway", "platform")
@@ -32,7 +33,7 @@ public class DownloadReferrersThread extends Thread {
                     nodesToBeDownloaded.add(currNode);
                 }
             }
-            
+
             DownloadPrimitivesWithReferrersTask task = new DownloadPrimitivesWithReferrersTask(false, nodesToBeDownloaded, false, true,
                     null, null);
             Thread t = new Thread(task);

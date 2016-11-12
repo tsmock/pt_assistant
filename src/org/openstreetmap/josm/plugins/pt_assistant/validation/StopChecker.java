@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -16,7 +17,7 @@ import org.openstreetmap.josm.plugins.pt_assistant.utils.StopUtils;
 
 /**
  * Performs tests of the stop area relations
- * 
+ *
  * @author
  *
  */
@@ -74,8 +75,6 @@ public class StopChecker extends Checker {
     /**
      * Checks if the stop_position(s) of an stop area belong to the same route
      * relations as its related platform(s).
-     * 
-     * @param n
      */
     protected void performStopAreaRelationsTest() {
 
@@ -94,10 +93,8 @@ public class StopChecker extends Checker {
                         stopPositionRelationIds.put(referrer.getId(), referrer.getId());
                     }
                 }
-            }
-
             // For platforms...
-            else if (StopUtils.verifyStopAreaPlatform(member)) {
+            } else if (StopUtils.verifyStopAreaPlatform(member)) {
 
                 // Create a list of assigned route relations
                 for (Relation referrer : OsmPrimitive.getFilteredList(member.getReferrers(), Relation.class)) {

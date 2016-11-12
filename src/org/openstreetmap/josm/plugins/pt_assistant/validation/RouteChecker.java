@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -22,7 +23,7 @@ import org.openstreetmap.josm.plugins.pt_assistant.utils.RouteUtils;
 
 /**
  * Performs tests of a route at the level of the whole route: sorting test
- * 
+ *
  * @author darya
  *
  */
@@ -77,8 +78,8 @@ public class RouteChecker extends Checker {
      * Checks if there is a gap for a given list of ways. It does not check if
      * the way actually stands for a public transport platform - that should be
      * checked beforehand.
-     * 
-     * @param waysToCheck
+     *
+     * @param waysToCheck ways to check
      * @return true if has gap (in the sense of continuity of ways in the
      *         Relation Editor), false otherwise
      */
@@ -109,7 +110,7 @@ public class RouteChecker extends Checker {
         return this.hasGap;
 
     }
-    
+
     protected static Command fixSortingError(TestError testError) {
         if (testError.getCode() != PTAssistantValidatorTest.ERROR_CODE_SORTING) {
             return null;

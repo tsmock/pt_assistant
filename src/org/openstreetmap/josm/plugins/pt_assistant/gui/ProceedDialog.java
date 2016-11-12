@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.gui;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -18,7 +19,7 @@ import javax.swing.SwingUtilities;
  * Dialog that asks the user how to proceed after the first stage of testing
  * (i.e. if the errors found in the first stage of testing should be fixed
  * before continuing with the testing).
- * 
+ *
  * @author darya
  *
  */
@@ -28,7 +29,7 @@ public class ProceedDialog extends JPanel {
 
     public enum ASK_TO_PROCEED {
         DO_ASK, DONT_ASK_AND_FIX_AUTOMATICALLY, DONT_ASK_AND_FIX_MANUALLY, DONT_ASK_AND_DONT_FIX
-    };
+    }
 
     // by default, the user should be asked
     public static ASK_TO_PROCEED askToProceed;
@@ -97,10 +98,10 @@ public class ProceedDialog extends JPanel {
     /**
      * Finds out whether the user wants to download incomplete members. In the
      * default case, creates a JOptionPane to ask.
-     * 
+     *
      * @return 0 to fix automatically, 1 to fix manually, 2 to proceed without
      *         fixing, -1 to stop testing or if dialog is closed without answer
-     * 
+     *
      */
     public int getUserSelection() {
 
@@ -143,7 +144,7 @@ public class ProceedDialog extends JPanel {
     }
 
     /**
-     * 
+     *
      */
     @SuppressWarnings("unused")
     private void showDialog() {

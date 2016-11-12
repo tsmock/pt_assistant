@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -39,17 +40,17 @@ import org.openstreetmap.josm.plugins.pt_assistant.utils.StopToWayAssigner;
 /**
  * Performs tests of a route at the level of route segments (the stop-by-stop
  * approach).
- * 
+ *
  * @author darya
  *
  */
 public class SegmentChecker extends Checker {
 
     /* PTRouteSegments that have been validated and are correct */
-    private static List<PTRouteSegment> correctSegments = new ArrayList<PTRouteSegment>();
+    private static List<PTRouteSegment> correctSegments = new ArrayList<>();
 
     /* PTRouteSegments that are wrong, stored in case the user calls the fix */
-    private static HashMap<TestError, PTRouteSegment> wrongSegments = new HashMap<TestError, PTRouteSegment>();
+    private static HashMap<TestError, PTRouteSegment> wrongSegments = new HashMap<>();
 
     /* Manager of the PTStops and PTWays of the current route */
     private PTRouteDataManager manager;
@@ -80,8 +81,8 @@ public class SegmentChecker extends Checker {
     /**
      * Returns the number of route segments that have been already successfully
      * verified
-     * 
-     * @return
+     *
+     * @return the number of route segments
      */
     public static int getCorrectSegmentCount() {
         return correctSegments.size();
@@ -90,11 +91,11 @@ public class SegmentChecker extends Checker {
     /**
      * Adds the given correct segment to the list of correct segments without
      * checking its correctness
-     * 
+     *
      * @param segment
      *            to add to the list of correct segments
      */
-    public synchronized static void addCorrectSegment(PTRouteSegment segment) {
+    public static synchronized void addCorrectSegment(PTRouteSegment segment) {
         for (PTRouteSegment correctSegment : correctSegments) {
             if (correctSegment.equalsRouteSegment(segment)) {
                 return;
@@ -102,11 +103,11 @@ public class SegmentChecker extends Checker {
         }
         correctSegments.add(segment);
     }
-    
+
     /**
      * Used for unit tests
-     * @param error
-     * @return
+     * @param error test error
+     * @return wrong route segment
      */
     protected static PTRouteSegment getWrongSegment(TestError error) {
         return wrongSegments.get(error);
@@ -205,7 +206,7 @@ public class SegmentChecker extends Checker {
 
     /**
      * Checks if the given node belongs to the ways of this route.
-     * 
+     *
      * @param node
      *            Node to be checked
      * @return 1 if belongs only as an inner node, 0 if belongs as a first or
@@ -307,8 +308,8 @@ public class SegmentChecker extends Checker {
     /**
      * Creates a TestError and adds it to the list of errors for a stop that is
      * not served.
-     * 
-     * @param stop
+     *
+     * @param stop stop
      */
     private void createStopError(PTStop stop) {
         List<Relation> primitives = new ArrayList<>(1);
@@ -367,11 +368,6 @@ public class SegmentChecker extends Checker {
 
     }
 
-    /**
-     * 
-     * @param node
-     * @return
-     */
     private boolean isDeadendNode(Node node) {
         int count = 0;
         for (PTWay ptway : manager.getPTWays()) {
@@ -388,10 +384,10 @@ public class SegmentChecker extends Checker {
     /**
      * Finds the deadend node closest to the given node represented by its
      * coordinates
-     * 
+     *
      * @param coord
      *            coordinates of the givenn node
-     * @param deadendNodes
+     * @param deadendNodes dead end nodes
      * @return the closest deadend node
      */
     @SuppressWarnings("unused")
@@ -412,7 +408,7 @@ public class SegmentChecker extends Checker {
 
     /**
      * Checks if the existing sorting of the given route segment is correct
-     * 
+     *
      * @param start
      *            PTWay assigned to the first stop of the segment
      * @param startWayPreviousNodeInDirectionOfTravel
@@ -485,10 +481,10 @@ public class SegmentChecker extends Checker {
 
     /**
      * Will return the same node if the way is an unsplit roundabout
-     * 
-     * @param way
-     * @param node
-     * @return
+     *
+     * @param way way
+     * @param node node
+     * @return the same node if the way is an unsplit roundabout
      */
     private Node getOppositeEndNode(Way way, Node node) {
 
@@ -505,10 +501,10 @@ public class SegmentChecker extends Checker {
 
     /**
      * Does not work correctly for unsplit roundabouts
-     * 
-     * @param ptway
-     * @param node
-     * @return
+     *
+     * @param ptway way
+     * @param node node
+     * @return node
      */
     private Node getOppositeEndNode(PTWay ptway, Node node) {
         if (ptway.isWay()) {
@@ -536,10 +532,10 @@ public class SegmentChecker extends Checker {
 
     /**
      * Finds the next ways for the route stop-by-stop parsing procedure
-     * 
-     * @param way
-     * @param nodeInDirectionOfTravel
-     * @return
+     *
+     * @param currentWay current way
+     * @param nextNodeInDirectionOfTravel next node in direction of travel
+     * @return the next ways for the route stop-by-stop parsing procedure
      */
     private List<PTWay> findNextPTWaysInDirectionOfTravel(PTWay currentWay, Node nextNodeInDirectionOfTravel) {
 
@@ -646,7 +642,7 @@ public class SegmentChecker extends Checker {
                 error.setMessage(tr("PT: Problem in the route segment with one automatic fix"));
             } else {
                 error.setMessage("PT: Problem in the route segment with several automatic fixes");
-            } 
+            }
         }
 
     }
@@ -655,8 +651,8 @@ public class SegmentChecker extends Checker {
      * This method assumes that the first and the second ways of the route
      * segment are correctly connected. If they are not, the error will be
      * marked as not fixable.
-     * 
-     * @param testError
+     *
+     * @param testError test error
      */
     private void findFix(TestError testError) {
 
@@ -685,12 +681,12 @@ public class SegmentChecker extends Checker {
 
     /**
      * Recursive method to parse the route segment
-     * 
-     * @param allFixes
-     * @param currentFix
-     * @param previousNode
-     * @param endWay
-     * @return
+     *
+     * @param allFixes all fixes
+     * @param currentFix current fix
+     * @param previousNode previous node
+     * @param endWay end way
+     * @return list of list of ways
      */
     private List<List<PTWay>> findWaysForFix(List<List<PTWay>> allFixes, List<PTWay> currentFix, Node previousNode,
             PTWay endWay) {
@@ -726,9 +722,9 @@ public class SegmentChecker extends Checker {
     /**
      * Fixes the error by first searching in the list of correct segments and
      * then trying to sort and remove existing route relation members
-     * 
-     * @param testError
-     * @return
+     *
+     * @param testError test error
+     * @return fix command
      */
     protected static Command fixError(TestError testError) {
 
@@ -810,9 +806,9 @@ public class SegmentChecker extends Checker {
     /**
      * This is largely a copy of the displayFixVariants() method, adapted for
      * use with the key listener
-     * 
-     * @param fixVariants
-     * @param testError
+     *
+     * @param fixVariants fix variants
+     * @param testError test error
      */
     private static void displayFixVariants(List<List<PTWay>> fixVariants, TestError testError) {
         // find the letters of the fix variants:
@@ -898,13 +894,13 @@ public class SegmentChecker extends Checker {
     /**
      * Carries out the fix (i.e. modifies the route) after the user has picked
      * the fix from several fix variants.
-     * 
+     *
      * @param testError
      *            test error to be fixed
      * @param fix
      *            the fix variant to be adopted
      */
-    private static void carryOutSelectedFix(TestError testError, List<PTWay> fix){
+    private static void carryOutSelectedFix(TestError testError, List<PTWay> fix) {
         // modify the route:
         Relation originalRelation = (Relation) testError.getPrimitives().iterator().next();
         Relation modifiedRelation = new Relation(originalRelation);
@@ -946,9 +942,9 @@ public class SegmentChecker extends Checker {
     /**
      * Carries out the fix (i.e. modifies the route) when there is only one fix
      * variant.
-     * 
-     * @param testError
-     * @param fix
+     *
+     * @param testError test error
+     * @param fix fix
      */
     private static Command carryOutSingleFix(TestError testError, List<PTWay> fix) {
         // Zoom to the problematic ways:
@@ -991,7 +987,7 @@ public class SegmentChecker extends Checker {
      * the calling method (relation.setMemers()) to modify the modify the route
      * relation. The route relation is not modified by this method. The lists of
      * wrong and correct segments are not updated.
-     * 
+     *
      * @param testError
      *            test error to be fixed
      * @param fix
@@ -1019,11 +1015,11 @@ public class SegmentChecker extends Checker {
 
         return modifiedRelationMembers;
     }
-    
+
     public static void carryOutRepeatLastFix(PTRouteSegment segment) {
-        
+
         List<TestError> wrongSegmentsToRemove = new ArrayList<>();
-        
+
         // find all wrong ways that have the same segment:
         for (TestError testError: wrongSegments.keySet()) {
             PTRouteSegment wrongSegment = wrongSegments.get(testError);
@@ -1031,14 +1027,14 @@ public class SegmentChecker extends Checker {
                 // modify the route:
                 Relation originalRelation = wrongSegment.getRelation();
                 Relation modifiedRelation = new Relation(originalRelation);
-                modifiedRelation.setMembers(getModifiedRelationMembers(testError, segment.getPTWays())); 
+                modifiedRelation.setMembers(getModifiedRelationMembers(testError, segment.getPTWays()));
                 ChangeCommand changeCommand = new ChangeCommand(originalRelation, modifiedRelation);
                 Main.main.undoRedo.addNoRedraw(changeCommand);
                 Main.main.undoRedo.afterAdd();
                 wrongSegmentsToRemove.add(testError);
             }
         }
-        
+
         // update the errors displayed in the validator dialog:
         List<TestError> modifiedValidatorTestErrors = new ArrayList<>();
         for (TestError validatorTestError: Main.map.validatorDialog.tree.getErrors()) {
@@ -1047,14 +1043,14 @@ public class SegmentChecker extends Checker {
             }
         }
         Main.map.validatorDialog.tree.setErrors(modifiedValidatorTestErrors);
-        
+
         // update wrong segments:
         for (TestError testError: wrongSegmentsToRemove) {
             wrongSegments.remove(testError);
         }
-        
+
     }
-    
+
     /**
      * Resets the static list variables (used for unit testing)
      */

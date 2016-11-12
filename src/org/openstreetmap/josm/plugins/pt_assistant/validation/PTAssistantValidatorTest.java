@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -121,8 +122,8 @@ public class PTAssistantValidatorTest extends Test {
         if (r.hasIncompleteMembers()) {
             return;
         }
-        
-        
+
+
         // Do some testing on stop area relations
         if (Main.pref.getBoolean("pt_assistant.stop-area-tests", true) == true && StopUtils.isStopArea(r)) {
 
@@ -141,12 +142,12 @@ public class PTAssistantValidatorTest extends Test {
             // Attach thrown errors
             this.errors.addAll(stopChecker.getErrors());
         }
-        
+
 
         if (!RouteUtils.isTwoDirectionRoute(r)) {
             return;
         }
-        
+
         // Check individual ways using the oneway direction test and the road
         // type test:
         WayChecker wayChecker = new WayChecker(r, this);
@@ -169,12 +170,12 @@ public class PTAssistantValidatorTest extends Test {
     /**
      * Downloads incomplete relation members in an extra thread (user input
      * required)
-     * 
+     *
      * @return true if successful, false if not successful
      */
     private boolean downloadIncompleteMembers() {
 
-        final int[] userSelection = { 0 };
+        final int[] userSelection = {0};
 
         try {
 
@@ -222,9 +223,9 @@ public class PTAssistantValidatorTest extends Test {
 
     /**
      * Shows the dialog asking the user about an incomplete member download
-     * 
+     *
      * @return user's selection
-     * @throws InterruptedException
+     * @throws InterruptedException if interrupted
      */
     private int showIncompleteMembersDownloadDialog() throws InterruptedException {
 
@@ -262,7 +263,7 @@ public class PTAssistantValidatorTest extends Test {
             }
         }
 
-        final int[] userInput = { 0 };
+        final int[] userInput = {0};
         final long idParameter = r.getId();
         final int directionErrorParameter = numberOfDirectionErrors;
         final int roadTypeErrorParameter = numberOfRoadTypeErrors;
@@ -328,8 +329,8 @@ public class PTAssistantValidatorTest extends Test {
 
     /**
      * Carries out the second stage of the testing: sorting
-     * 
-     * @param r
+     *
+     * @param r relation
      */
     private void proceedWithSorting(Relation r) {
 
@@ -338,14 +339,14 @@ public class PTAssistantValidatorTest extends Test {
         routeChecker.performSortingTest();
         List<TestError> routeCheckerErrors = routeChecker.getErrors();
 
-        /*- At this point, there are 3 variants: 
-         * 
+        /*- At this point, there are 3 variants:
+         *
          * 1) There are no errors => route is correct
          * 2) There is only a sorting error (can only be 1), but otherwise
          * correct.
          * 3) There are some other errors/gaps that cannot be fixed by
-         * sorting => start further test (stop-by-stop) 
-         * 
+         * sorting => start further test (stop-by-stop)
+         *
          * */
 
         if (!routeCheckerErrors.isEmpty()) {
@@ -367,7 +368,7 @@ public class PTAssistantValidatorTest extends Test {
     /**
      * Carries out the stop-by-stop testing which includes building the route
      * data model.
-     * 
+     *
      * @param r route relation
      */
     private void proceedAfterSorting(Relation r) {
@@ -396,7 +397,7 @@ public class PTAssistantValidatorTest extends Test {
             segmentChecker.performStopByStopTest();
             segmentChecker.findFixes();
         }
-        
+
         for (TestError error: segmentChecker.getErrors()) {
             if (error.getCode() != PTAssistantValidatorTest.ERROR_CODE_RELAITON_MEMBER_ROLES) {
                 this.errors.add(error);
@@ -407,7 +408,7 @@ public class PTAssistantValidatorTest extends Test {
     /**
      * Creates the PTRouteSegments of a route that has been found correct and
      * stores them in the list of correct route segments
-     * 
+     *
      * @param r
      *            route relation
      */
@@ -446,7 +447,7 @@ public class PTAssistantValidatorTest extends Test {
 
         return false;
     }
-    
+
     /**
      * Fixes the given error
      */
@@ -514,8 +515,6 @@ public class PTAssistantValidatorTest extends Test {
      * method. The fixError method is invoked from the core validator (e.g. when
      * user presses the "Fix" button in the validator). This method is invoken
      * when the fix is initiated from within the plugin (e.g. automated fixes).
-     * 
-     * @return
      */
     private void fixErrorFromPlugin(List<TestError> testErrors) {
 

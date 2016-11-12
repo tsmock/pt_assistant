@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.gui;
 
 import java.awt.Graphics;
@@ -39,11 +40,11 @@ import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Layer that visualizes the routes in a more convenient way
- * 
+ *
  * @author darya
  *
  */
-public class PTAssistantLayer extends Layer
+public final class PTAssistantLayer extends Layer
         implements SelectionChangedListener, PropertyChangeListener, LayerChangeListener {
 
     private static PTAssistantLayer layer;
@@ -68,8 +69,8 @@ public class PTAssistantLayer extends Layer
 
     /**
      * Adds a primitive (route) to be displayed in this layer
-     * 
-     * @param primitive
+     *
+     * @param primitive primitive (route)
      */
     public void addPrimitive(OsmPrimitive primitive) {
         this.primitives.add(primitive);
@@ -90,8 +91,8 @@ public class PTAssistantLayer extends Layer
 
     /**
      * Adds the first 5 fix variants to be displayed in the pt_assistant layer
-     * 
-     * @param fixVariants
+     *
+     * @param fixVariants fix variants
      */
     public void addFixVariants(List<List<PTWay>> fixVariants) {
         HashMap<List<PTWay>, Character> fixVariantLetterMap = new HashMap<>();
@@ -125,9 +126,9 @@ public class PTAssistantLayer extends Layer
     /**
      * Returns fix variant (represented by a list of PTWays) that corresponds to
      * the given character.
-     * 
-     * @param c
-     * @return
+     *
+     * @param c character
+     * @return fix variant
      */
     public List<PTWay> getFixVariant(char c) {
         return this.fixVariants.get(Character.toUpperCase(c));
@@ -158,9 +159,9 @@ public class PTAssistantLayer extends Layer
 
     @Override
     public Action[] getMenuEntries() {
-        return new Action[] { LayerListDialog.getInstance().createShowHideLayerAction(),
+        return new Action[] {LayerListDialog.getInstance().createShowHideLayerAction(),
                 LayerListDialog.getInstance().createDeleteLayerAction(), SeparatorLayerAction.INSTANCE,
-                new RenameLayerAction(null, this), SeparatorLayerAction.INSTANCE, new LayerListPopup.InfoAction(this) };
+                new RenameLayerAction(null, this), SeparatorLayerAction.INSTANCE, new LayerListPopup.InfoAction(this)};
     }
 
     @Override
@@ -248,8 +249,8 @@ public class PTAssistantLayer extends Layer
 
     /**
      * Repaints the layer in cases when there was no selection change
-     * 
-     * @param relation
+     *
+     * @param relation relation
      */
     public void repaint(Relation relation) {
         this.primitives.clear();

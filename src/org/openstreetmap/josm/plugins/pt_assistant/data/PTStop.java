@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.data;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import org.openstreetmap.josm.data.osm.RelationMember;
 
 /**
  * Model a stop with one or two elements (platform and/or stop_position)
- * 
+ *
  * @author darya
  *
  */
@@ -30,8 +31,8 @@ public class PTStop extends RelationMember {
 
     /**
      * Constructor
-     * 
-     * @param other
+     *
+     * @param other other relation member
      * @throws IllegalArgumentException
      *             if the given relation member does not fit to the data model
      *             used in the plugin
@@ -68,7 +69,7 @@ public class PTStop extends RelationMember {
 
     /**
      * Adds the given element to the stop after a check
-     * 
+     *
      * @param member
      *            Element to add
      * @return true if added successfully, false otherwise. A false value
@@ -111,8 +112,8 @@ public class PTStop extends RelationMember {
     /**
      * Returns the stop_position for this PTstop. If the stop_position is not
      * available directly, the method searches for a stop_area relation
-     * 
-     * @return
+     *
+     * @return the stop_position for this PTstop
      */
     public Node getStopPosition() {
 
@@ -121,8 +122,8 @@ public class PTStop extends RelationMember {
 
     /**
      * Returns platform (including platform_entry_only and platform_exit_only)
-     * 
-     * @return
+     *
+     * @return platform (including platform_entry_only and platform_exit_only)
      */
     public OsmPrimitive getPlatform() {
         return this.platform;
@@ -130,7 +131,7 @@ public class PTStop extends RelationMember {
 
     /**
      * Returns the name of this stop
-     * @return
+     * @return the name of this stop
      */
     protected String getName() {
         return this.name;
@@ -138,7 +139,7 @@ public class PTStop extends RelationMember {
 
     /**
      * Sets the stop_position for this stop to the given node
-     * @param newStopPosition
+     * @param newStopPosition the stop_position for this stop to the given node
      */
     public void setStopPosition(Node newStopPosition) {
 
@@ -151,7 +152,7 @@ public class PTStop extends RelationMember {
      * makes sense to call this method if the stop_position attribute is null.
      * The stop_positions are potential because they may refer to a different
      * route, which this method does not check.
-     * 
+     *
      * @return List of potential stop_positions for this PTStop
      */
     public List<Node> findPotentialStopPositions() {
@@ -185,7 +186,7 @@ public class PTStop extends RelationMember {
     /**
      * Checks if this stop equals to other by comparing if they have the same
      * stop_position or a platform
-     * 
+     *
      * @param other
      *            PTStop to be compared
      * @return true if equal, false otherwise

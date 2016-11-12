@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.utils;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import org.openstreetmap.josm.tools.Pair;
  * Assigns stops to ways in following steps: (1) checks if the stop is in the
  * list of already assigned stops, (2) checks if the stop has a stop position,
  * (3) calculates it using proximity / growing bounding boxes
- * 
+ *
  * @author darya
  *
  */
@@ -41,7 +42,7 @@ public class StopToWayAssigner {
     /* route relation for which this StopToWayAssigner was created */
 
     public StopToWayAssigner(List<PTWay> ptways) {
-        ways = new HashSet<Way>();
+        ways = new HashSet<>();
         for (PTWay ptway : ptways) {
             ways.addAll(ptway.getWays());
         }
@@ -49,9 +50,9 @@ public class StopToWayAssigner {
 
     /**
      * Returns the PTWay for the given PTStop
-     * 
-     * @param stop
-     * @return
+     *
+     * @param stop stop
+     * @return the PTWay for the given PTStop
      */
     public Way get(PTStop stop) {
 
@@ -151,9 +152,9 @@ public class StopToWayAssigner {
 
     /**
      * Finds the PTWay of the given stop_position by looking at its referrers
-     * 
-     * @param stopPosition
-     * @return
+     *
+     * @param stopPosition stop position
+     * @return the PTWay of the given stop_position by looking at its referrers
      */
     private Way findWayForNode(Node stopPosition) {
 
@@ -179,10 +180,10 @@ public class StopToWayAssigner {
      * Finds the PTWay in the given radius of the OsmPrimitive. The PTWay has to
      * belong to the route relation for which this StopToWayAssigner was
      * created. If multiple PTWays were found, the closest one is chosen.
-     * 
-     * @param platform
-     * @param searchRadius
-     * @return
+     *
+     * @param platform platform
+     * @param searchRadius search radius
+     * @return the PTWay in the given radius of the OsmPrimitive
      */
     private Way findNearestWayInRadius(OsmPrimitive platform, double searchRadius) {
 
@@ -236,10 +237,10 @@ public class StopToWayAssigner {
 
     /**
      * Calculates the minimum distance between a node and a way
-     * 
-     * @param node
-     * @param way
-     * @return
+     *
+     * @param node node
+     * @param way way
+     * @return the minimum distance between a node and a way
      */
     private double calculateMinDistanceToSegment(Node node, Way way) {
 
@@ -266,10 +267,10 @@ public class StopToWayAssigner {
      * distance to segment is calculated as distance from point to line. If the
      * triangle is obtuse, the distance is calculated as the distance to the
      * nearest vertex of the segment.
-     * 
-     * @param node
-     * @param segment
-     * @return
+     *
+     * @param node node
+     * @param segment segment
+     * @return the distance from point to segment
      */
     private double calculateDistanceToSegment(Node node, Pair<Node, Node> segment) {
 
@@ -295,10 +296,10 @@ public class StopToWayAssigner {
     /**
      * Calculates the distance from point to line using formulas for triangle
      * area. Does not differentiate between acute, right and obtuse triangles
-     * 
-     * @param node
-     * @param waySegment
-     * @return
+     *
+     * @param node node
+     * @param waySegment way segment
+     * @return the distance from point to line
      */
     private double calculateDistanceToLine(Node node, Pair<Node, Node> segment) {
 
@@ -325,12 +326,11 @@ public class StopToWayAssigner {
     /**
      * Checks if the angle opposite of the edge c is obtuse. Uses the cosine
      * theorem
-     * 
-     * @param lengthA
-     * @param lengthB
-     * @param lengthC
-     *            the triangle edge which is testes
-     * @return true if the angle opposite of te edge c is obtuse
+     *
+     * @param lengthA length A
+     * @param lengthB length B
+     * @param lengthC length C
+     * @return true if the angle opposite of the edge c is obtuse
      */
     private boolean isObtuse(double lengthA, double lengthB, double lengthC) {
 
@@ -352,16 +352,16 @@ public class StopToWayAssigner {
     /**
      * Adds the given way to the map of assigned ways. Assumes that the given
      * way is not contained in the map.
-     * 
-     * @param stop
-     * @param way
+     *
+     * @param stop stop
+     * @param way way
      */
     private void addAssignedWayToMap(PTStop stop, Way way) {
         if (stopToWay.containsKey(stop)) {
             List<Way> assignedWays = stopToWay.get(stop);
             assignedWays.add(way);
         } else {
-            List<Way> assignedWays = new ArrayList<Way>();
+            List<Way> assignedWays = new ArrayList<>();
             assignedWays.add(way);
             stopToWay.put(stop, assignedWays);
         }

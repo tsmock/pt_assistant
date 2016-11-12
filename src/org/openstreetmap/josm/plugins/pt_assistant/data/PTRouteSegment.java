@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.data;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import org.openstreetmap.josm.data.osm.Way;
  * ways between them. Route segments are ordered, i.e. for most routes there
  * will be two route segments between each pair of consecutive stops, one in
  * each direction.
- * 
+ *
  * @author darya
  *
  */
@@ -20,16 +21,16 @@ public class PTRouteSegment {
 
     /* first stop of the route segment */
     private PTStop firstStop;
-    
+
     /* last stop of the route segment */
     private PTStop lastStop;
-    
+
     /* ptways that belong to this route segment */
     private List<PTWay> ptways;
-    
+
     /* fix variants available for this route segment */
     private List<List<PTWay>> fixVariants;
-    
+
     /* route relation for which this route segment was created */
     private Relation relation;
 
@@ -51,7 +52,7 @@ public class PTRouteSegment {
 
     /**
      * Returns the PTWays of this route segment
-     * @return
+     * @return the PTWays of this route segment
      */
     public List<PTWay> getPTWays() {
         return this.ptways;
@@ -59,7 +60,7 @@ public class PTRouteSegment {
 
     /**
      * Sets the PTWays of this route segment to the given list
-     * @param ptwayList
+     * @param ptwayList list of ways
      */
     public void setPTWays(List<PTWay> ptwayList) {
         this.ptways = ptwayList;
@@ -68,15 +69,15 @@ public class PTRouteSegment {
 
     /**
      * Returns the first stop of this route segment
-     * @return
+     * @return the first stop of this route segment
      */
     public PTStop getFirstStop() {
         return this.firstStop;
     }
-    
+
     /**
      * Returns the last stop of this route segment
-     * @return
+     * @return the last stop of this route segment
      */
     public PTStop getLastStop() {
         return this.lastStop;
@@ -84,7 +85,7 @@ public class PTRouteSegment {
 
     /**
      * Returns the first PTWay of this route segment
-     * @return
+     * @return the first PTWay of this route segment
      */
     public PTWay getFirstPTWay() {
         if (ptways.isEmpty()) {
@@ -95,7 +96,7 @@ public class PTRouteSegment {
 
     /**
      * Returns the last PTWay of this route segment
-     * @return
+     * @return the last PTWay of this route segment
      */
     public PTWay getLastPTWay() {
         if (ptways.isEmpty()) {
@@ -103,10 +104,10 @@ public class PTRouteSegment {
         }
         return ptways.get(ptways.size() - 1);
     }
-    
+
     /**
      * Returns the first way of this route segment
-     * @return
+     * @return the first way of this route segment
      */
     public Way getFirstWay() {
         if (ptways.isEmpty()) {
@@ -114,10 +115,10 @@ public class PTRouteSegment {
         }
         return ptways.get(0).getWays().get(0);
     }
-    
+
     /**
      * Returns the last way of this route segment
-     * @return
+     * @return the last way of this route segment
      */
     public Way getLastWay() {
         if (ptways.isEmpty()) {
@@ -130,7 +131,7 @@ public class PTRouteSegment {
     /**
      * Adds the new fix variant if an identical fix variant (i.e. same ways) is
      * not already contained in the list of the fix variants of this.
-     * 
+     *
      * @param list the PTWays of the new fix variant
      */
     public synchronized void addFixVariant(List<PTWay> list) {
@@ -163,15 +164,15 @@ public class PTRouteSegment {
 
     /**
      * Returns the fix variants stored for this route segment
-     * @return
+     * @return the fix variants stored for this route segment
      */
     public List<List<PTWay>> getFixVariants() {
         return this.fixVariants;
     }
-    
+
     /**
      * Returns the route relation for which this route segment was created
-     * @return
+     * @return the route relation for which this route segment was created
      */
     public Relation getRelation() {
         return this.relation;
@@ -179,9 +180,9 @@ public class PTRouteSegment {
 
     /**
      * Checks if this and the other route segments are equal
-     * 
-     * @param other
-     * @return
+     *
+     * @param other other route segment
+     * @return {@code true} if this and the other route segments are equal
      */
     public boolean equalsRouteSegment(PTRouteSegment other) {
 

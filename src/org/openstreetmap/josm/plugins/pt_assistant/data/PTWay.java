@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.data;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Representation of PTWays, which can be of OsmPrimitiveType Way or Relation
- * 
+ *
  * @author darya
  *
  */
@@ -21,10 +22,10 @@ public class PTWay extends RelationMember {
      * OsmPrimitiveType.WAY, this list size is 1. If the corresponding relation
      * member is a nested relation, the list size is >= 1.
      */
-    private List<Way> ways = new ArrayList<Way>();
+    private List<Way> ways = new ArrayList<>();
 
     /**
-     * 
+     *
      * @param other
      *            the corresponding RelationMember
      * @throws IllegalArgumentException
@@ -57,8 +58,8 @@ public class PTWay extends RelationMember {
      * Returns the course of this PTWay. In most cases, this list only has 1
      * element. In the case of nested relations in a route, the list can have
      * multiple elements.
-     * 
-     * @return
+     *
+     * @return the course of this PTWay
      */
     public List<Way> getWays() {
         return this.ways;
@@ -67,6 +68,7 @@ public class PTWay extends RelationMember {
     /**
      * Determines if this PTWay is modeled by an OsmPrimitiveType.WAY
      */
+    @Override
     public boolean isWay() {
         if (this.getType().equals(OsmPrimitiveType.WAY)) {
             return true;
@@ -78,6 +80,7 @@ public class PTWay extends RelationMember {
      * Determines if this PTWay is modeled by an OsmPrimitieType.RELATION (i.e.
      * this is a nested relation)
      */
+    @Override
     public boolean isRelation() {
         if (this.getType().equals(OsmPrimitiveType.RELATION)) {
             return true;
@@ -88,8 +91,8 @@ public class PTWay extends RelationMember {
     /**
      * Returns the end nodes of this PTWay. If this PTWay is a nested relation,
      * the order of the composing ways is assumed to be correct
-     * 
-     * @return
+     *
+     * @return the end nodes of this PTWay
      */
     public Node[] getEndNodes() {
         Node[] endNodes = new Node[2];
@@ -121,8 +124,8 @@ public class PTWay extends RelationMember {
     /**
      * Checks if this PTWay contains an unsplit roundabout (i.e. a way that
      * touches itself) among its ways
-     * 
-     * @return
+     *
+     * @return {@code true} if this PTWay contains an unsplit roundabout
      */
     public boolean containsUnsplitRoundabout() {
 
@@ -138,8 +141,8 @@ public class PTWay extends RelationMember {
     /**
      * Checks if the first Way of this PTWay is an unsplit roundabout (i.e. a
      * way that touches itself)
-     * 
-     * @return
+     *
+     * @return {@code true} if the first Way of this PTWay is an unsplit roundabout
      */
     public boolean startsWithUnsplitRoundabout() {
         if (this.ways.get(0).firstNode() == this.ways.get(0).lastNode()) {
@@ -151,8 +154,8 @@ public class PTWay extends RelationMember {
     /**
      * Checks if the last Way of this PTWay is an unsplit roundabout (i.e. a way
      * that touches itself)
-     * 
-     * @return
+     *
+     * @return {@code true} if the last Way of this PTWay is an unsplit roundabout
      */
     public boolean endsWithUnsplitRoundabout() {
         if (this.ways.get(this.ways.size() - 1).firstNode() == this.ways.get(this.ways.size() - 1).lastNode()) {

@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.utils;
 
 import java.util.Collection;
@@ -11,11 +12,11 @@ import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Utils class for routes
- * 
+ *
  * @author darya
  *
  */
-public class RouteUtils {
+public final class RouteUtils {
 
     private RouteUtils() {
         // private constructor for util classes
@@ -24,7 +25,7 @@ public class RouteUtils {
     /**
      * Checks if the relation is a route of one of the following categories:
      * bus, trolleybus, share_taxi, tram, light_rail, subway, train.
-     * 
+     *
      * @param r
      *            Relation to be checked
      * @return true if the route belongs to the categories that can be validated
@@ -54,7 +55,7 @@ public class RouteUtils {
     /**
      * Checks if the relation member refers to a stop in a public transport
      * route. Some stops can be modeled with ways.
-     * 
+     *
      * @param rm
      *            relation member to be checked
      * @return true if the relation member refers to a stop, false otherwise
@@ -81,7 +82,7 @@ public class RouteUtils {
      * Checks if the relation member refers to a way in a public transport
      * route. Some OsmPrimitiveType.WAY have to be excluded because platforms
      * can be modeled with ways.
-     * 
+     *
      * @param rm
      *            relation member to be checked
      * @return true if the relation member refers to a way in a public transport
@@ -116,7 +117,7 @@ public class RouteUtils {
      * Checks if the given way has tags that make it oneway for public
      * transport. The test does not check whether the way violates those
      * restrictions.
-     * 
+     *
      * @return 0 if the way is not oneway for public transport, 1 if the way is
      *         oneway for public transport, -1 if the way is reversely oneway
      *         for public transport
@@ -146,10 +147,10 @@ public class RouteUtils {
 
     /**
      * Checks if the ways have a common node
-     * 
-     * @param w1
-     * @param w2
-     * @return
+     *
+     * @param w1 first way
+     * @param w2 second way
+     * @return {@code true} if the ways have a common node
      */
     public static boolean waysTouch(Way w1, Way w2) {
 
@@ -173,7 +174,7 @@ public class RouteUtils {
     /**
      * Checks if any way from the first collection touches any way from the
      * second collection
-     * 
+     *
      * @param c1 first collection
      * @param c2 second collection
      * @return true if ways touch, false otherwise
@@ -198,7 +199,7 @@ public class RouteUtils {
     /**
      * Checks if the type of the way is suitable for buses to go on it. The
      * direction of the way (i.e. one-way roads) is irrelevant for this test.
-     * 
+     *
      * @param way
      *            to be checked
      * @return true if the way is suitable for buses, false otherwise.
@@ -226,8 +227,8 @@ public class RouteUtils {
 
     /**
      * Checks if this way is suitable for public transport (not only for buses)
-     * @param way
-     * @return
+     * @param way way
+     * @return {@code true} if this way is suitable for public transport
      */
     public static boolean isWaySuitableForPublicTransport(Way way) {
 

@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.validation;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -24,7 +25,7 @@ import org.openstreetmap.josm.plugins.pt_assistant.utils.RouteUtils;
 /**
  * Performs tests of a route at the level of single ways: DirectionTest and
  * RoadTypeTest
- * 
+ *
  * @author darya
  *
  */
@@ -194,7 +195,7 @@ public class WayChecker extends Checker {
             primitivesToReport.addAll(checkAdjacentWays(problematicWay, new HashSet<Way>()));
             listOfSets.add(primitivesToReport);
         }
-        
+
         boolean changed = true;
         while (changed) {
             changed = false;
@@ -221,14 +222,14 @@ public class WayChecker extends Checker {
 
     /**
      * Checks if the current way touches its neighboring ways correctly
-     * 
+     *
      * @param prev
      *            can be null
      * @param curr
      *            cannot be null
      * @param next
      *            can be null
-     * @return
+     * @return {@code true} if the current way touches its neighboring ways correctly
      */
     private boolean touchCorrectly(Way prev, Way curr, Way next) {
 
@@ -340,10 +341,11 @@ public class WayChecker extends Checker {
     /**
      * Finds all ways that touch the given way at the given node AND belong to
      * the relation of this WayChecker
-     * 
-     * @param way
-     * @param node
-     * @return
+     *
+     * @param way way
+     * @param node node
+     * @return all ways that touch the given way at the given node AND belong to
+     * the relation of this WayChecker
      */
     private List<Way> findNeighborWays(Way way, Node node) {
 
@@ -365,9 +367,9 @@ public class WayChecker extends Checker {
 
     /**
      * Checks if the relation of this WayChecker contains the given way
-     * 
-     * @param way
-     * @return
+     *
+     * @param way way
+     * @return {@code true} if the relation of this WayChecker contains the given way
      */
     private boolean containsWay(Way way) {
 

@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant.actions;
 
 import java.util.ArrayList;
@@ -85,6 +86,7 @@ public class IncompleteMembersDownloadThread extends Thread {
 
         } catch (InterruptedException e) {
             // do nothing in case the download was interrupted
+            Main.trace(e);
         }
 
     }
