@@ -21,6 +21,7 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.validation.Severity;
 import org.openstreetmap.josm.data.validation.Test;
 import org.openstreetmap.josm.data.validation.TestError;
+import org.openstreetmap.josm.data.validation.TestError.Builder;
 import org.openstreetmap.josm.plugins.pt_assistant.utils.RouteUtils;
 import org.openstreetmap.josm.plugins.pt_assistant.utils.StopUtils;
 
@@ -50,8 +51,10 @@ public class NodeChecker extends Checker {
 
         List<OsmPrimitive> primitives = new ArrayList<>(1);
         primitives.add(node);
-        TestError e = new TestError(this.test, Severity.WARNING, tr("PT: Stop_position is not part of a way"),
-                PTAssistantValidatorTest.ERROR_CODE_SOLITARY_STOP_POSITION, primitives);
+        Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_SOLITARY_STOP_POSITION);
+        builder.message(tr("PT: Stop_position is not part of a way"));
+        builder.primitives(primitives);
+        TestError e = builder.build();
         errors.add(e);
 
     }
@@ -69,9 +72,10 @@ public class NodeChecker extends Checker {
             if (referrer.getType().equals(OsmPrimitiveType.WAY)) {
                 Way referringWay = (Way) referrer;
                 if (RouteUtils.isWaySuitableForPublicTransport(referringWay)) {
-                    TestError e = new TestError(this.test, Severity.WARNING,
-                            tr("PT: Platform should not be part of a way"),
-                            PTAssistantValidatorTest.ERROR_CODE_PLATFORM_PART_OF_HIGHWAY, primitives);
+                    Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_PLATFORM_PART_OF_HIGHWAY);
+                    builder.message(tr("PT: Platform should not be part of a way"));
+                    builder.primitives(primitives);
+                    TestError e = builder.build();
                     errors.add(e);
                     return;
                 }
@@ -81,6 +85,7 @@ public class NodeChecker extends Checker {
 
     /**
      * Checks if the given stop_position node belongs to any stop_area relation
+     * 
      * @author xamanu
      */
     protected void performNodePartOfStopAreaTest() {
@@ -89,9 +94,10 @@ public class NodeChecker extends Checker {
 
             List<OsmPrimitive> primitives = new ArrayList<>(1);
             primitives.add(node);
-            TestError e = new TestError(this.test, Severity.WARNING,
-                    tr("PT: Stop position or platform is not part of a stop area relation"),
-                    PTAssistantValidatorTest.ERROR_CODE_NOT_PART_OF_STOP_AREA, primitives);
+            Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_NOT_PART_OF_STOP_AREA);
+            builder.message(tr("PT: Stop position or platform is not part of a stop area relation"));
+            builder.primitives(primitives);
+            TestError e = builder.build();
             errors.add(e);
         }
     }
@@ -100,7 +106,8 @@ public class NodeChecker extends Checker {
      * Fixes errors: solitary stop position and platform which is part of a way.
      * Asks the user first.
      *
-     * @param testError test error
+     * @param testError
+     *            test error
      * @return fix command
      */
     protected static Command fixError(TestError testError) {
@@ -112,7 +119,7 @@ public class NodeChecker extends Checker {
 
         Node problematicNode = (Node) testError.getPrimitives().iterator().next();
 
-        final int[] userSelection = {JOptionPane.YES_OPTION};
+        final int[] userSelection = { JOptionPane.YES_OPTION };
         final TestError errorParameter = testError;
         if (SwingUtilities.isEventDispatchThread()) {
 
@@ -159,7 +166,7 @@ public class NodeChecker extends Checker {
         primitives.add(problematicNode);
         AutoScaleAction.zoomTo(primitives);
 
-        String[] options = {tr("Yes"), tr("No")};
+        String[] options = { tr("Yes"), tr("No") };
         String message;
         if (e.getCode() == PTAssistantValidatorTest.ERROR_CODE_SOLITARY_STOP_POSITION) {
             message = "Do you want to change the tag public_transport=stop_position to public_transport=platform?";
