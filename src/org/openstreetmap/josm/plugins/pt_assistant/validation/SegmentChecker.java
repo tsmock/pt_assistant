@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.swing.SwingUtilities;
 
@@ -51,7 +52,8 @@ public class SegmentChecker extends Checker {
     private static List<PTRouteSegment> correctSegments = new ArrayList<>();
 
     /* PTRouteSegments that are wrong, stored in case the user calls the fix */
-    private static HashMap<TestError, PTRouteSegment> wrongSegments = new HashMap<>();
+    protected static HashMap<TestError, PTRouteSegment> wrongSegments = new HashMap<>();
+    protected static HashMap<Builder, PTRouteSegment> wrongSegmentBuilders = new HashMap<>();
 
     /* Manager of the PTStops and PTWays of the current route */
     private PTRouteDataManager manager;
@@ -70,7 +72,8 @@ public class SegmentChecker extends Checker {
             primitives.add(relation);
             List<OsmPrimitive> highlighted = new ArrayList<>(1);
             highlighted.add(rm.getMember());
-            Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_RELAITON_MEMBER_ROLES);
+            Builder builder = TestError.builder(this.test, Severity.WARNING,
+                    PTAssistantValidatorTest.ERROR_CODE_RELAITON_MEMBER_ROLES);
             builder.message(tr("PT: Relation member roles do not match tags"));
             builder.primitives(primitives);
             builder.highlight(highlighted);
@@ -110,7 +113,9 @@ public class SegmentChecker extends Checker {
 
     /**
      * Used for unit tests
-     * @param error test error
+     * 
+     * @param error
+     *            test error
      * @return wrong route segment
      */
     protected static PTRouteSegment getWrongSegment(TestError error) {
@@ -165,7 +170,8 @@ public class SegmentChecker extends Checker {
                 primitives.add(relation);
                 List<OsmPrimitive> highlighted = new ArrayList<>(1);
                 highlighted.add(endStop.getPlatform());
-                Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_END_STOP);
+                Builder builder = TestError.builder(this.test, Severity.WARNING,
+                        PTAssistantValidatorTest.ERROR_CODE_END_STOP);
                 builder.message(tr("PT: Route should start and end with a stop_position"));
                 builder.primitives(primitives);
                 builder.highlight(highlighted);
@@ -186,7 +192,8 @@ public class SegmentChecker extends Checker {
                 List<OsmPrimitive> highlighted = new ArrayList<>();
                 highlighted.addAll(stopPositionsOfThisRoute);
 
-                Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_SPLIT_WAY);
+                Builder builder = TestError.builder(this.test, Severity.WARNING,
+                        PTAssistantValidatorTest.ERROR_CODE_SPLIT_WAY);
                 builder.message(tr("PT: First or last way needs to be split"));
                 builder.primitives(primitives);
                 builder.highlight(highlighted);
@@ -205,7 +212,8 @@ public class SegmentChecker extends Checker {
                 primitives.add(relation);
                 List<OsmPrimitive> highlighted = new ArrayList<>();
                 highlighted.add(endStop.getStopPosition());
-                Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_SPLIT_WAY);
+                Builder builder = TestError.builder(this.test, Severity.WARNING,
+                        PTAssistantValidatorTest.ERROR_CODE_SPLIT_WAY);
                 builder.message(tr("PT: First or last way needs to be split"));
                 builder.primitives(primitives);
                 builder.highlight(highlighted);
@@ -269,6 +277,8 @@ public class SegmentChecker extends Checker {
             return;
         }
 
+        List<OsmPrimitive> lastCreatedBuilderHighlighted = null;
+
         // Check each route segment:
         for (int i = 1; i < manager.getPTStopCount(); i++) {
 
@@ -284,10 +294,13 @@ public class SegmentChecker extends Checker {
             List<PTWay> segmentWays = manager.getPTWaysBetween(startWay, endWay);
 
             Node firstNode = findFirstNodeOfRouteSegmentInDirectionOfTravel(segmentWays.get(0));
+
+            // get last added TestErrorBuilder:
+
             if (firstNode == null) {
                 // check if this error has just been reported:
-                if (!this.errors.isEmpty() && this.errors.get(this.errors.size() - 1).getHighlighted().size() == 1
-                        && this.errors.get(this.errors.size() - 1).getHighlighted().iterator().next() == startWay) {
+                if (wrongSegmentBuilders.isEmpty() && lastCreatedBuilderHighlighted.size() == 1
+                        && lastCreatedBuilderHighlighted.get(0) == startWay) {
                     // do nothing, this error has already been reported in
                     // the previous route segment
                 } else {
@@ -295,27 +308,36 @@ public class SegmentChecker extends Checker {
                     primitives.add(relation);
                     List<OsmPrimitive> highlighted = new ArrayList<>();
                     highlighted.add(startWay);
-                    Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_STOP_BY_STOP);
-                    builder.message(tr("PT: Problem in the route segment"));
+                    Builder builder = TestError.builder(this.test, Severity.WARNING,
+                            PTAssistantValidatorTest.ERROR_CODE_STOP_BY_STOP);
                     builder.primitives(primitives);
                     builder.highlight(highlighted);
-                    TestError e = builder.build();
-                    this.errors.add(e);
                     PTRouteSegment routeSegment = new PTRouteSegment(startStop, endStop, segmentWays, relation);
-                    wrongSegments.put(e, routeSegment);
+                    wrongSegmentBuilders.put(builder, routeSegment);
                 }
                 continue;
             }
 
-            boolean sortingCorrect = existingWaySortingIsCorrect(segmentWays.get(0), firstNode,
+            PTWay wronglySortedPtway = existingWaySortingIsWrong(segmentWays.get(0), firstNode,
                     segmentWays.get(segmentWays.size() - 1));
-            if (sortingCorrect) {
+            if (wronglySortedPtway == null) { // i.e. if the sorting is correct:
                 PTRouteSegment routeSegment = new PTRouteSegment(startStop, endStop, segmentWays, relation);
                 addCorrectSegment(routeSegment);
-            } else {
+            } else { // i.e. if the sorting is wrong:
                 PTRouteSegment routeSegment = new PTRouteSegment(startStop, endStop, segmentWays, relation);
-                TestError error = this.errors.get(this.errors.size() - 1);
-                wrongSegments.put(error, routeSegment);
+                // TestError error = this.errors.get(this.errors.size() - 1);
+                // wrongSegments.put(error, routeSegment);
+
+                List<Relation> primitives = new ArrayList<>(1);
+                primitives.add(relation);
+                List<OsmPrimitive> highlighted = new ArrayList<>();
+                highlighted.addAll(wronglySortedPtway.getWays());
+                Builder builder = TestError.builder(this.test, Severity.WARNING,
+                        PTAssistantValidatorTest.ERROR_CODE_STOP_BY_STOP);
+                builder.primitives(primitives);
+                builder.highlight(highlighted);
+                lastCreatedBuilderHighlighted = highlighted;
+                wrongSegmentBuilders.put(builder, routeSegment);
             }
         }
     }
@@ -324,7 +346,8 @@ public class SegmentChecker extends Checker {
      * Creates a TestError and adds it to the list of errors for a stop that is
      * not served.
      *
-     * @param stop stop
+     * @param stop
+     *            stop
      */
     private void createStopError(PTStop stop) {
         List<Relation> primitives = new ArrayList<>(1);
@@ -335,7 +358,8 @@ public class SegmentChecker extends Checker {
             stopPrimitive = stop.getStopPosition();
         }
         highlighted.add(stopPrimitive);
-        Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_STOP_NOT_SERVED);
+        Builder builder = TestError.builder(this.test, Severity.WARNING,
+                PTAssistantValidatorTest.ERROR_CODE_STOP_NOT_SERVED);
         builder.message(tr("PT: Stop not served"));
         builder.primitives(primitives);
         builder.highlight(highlighted);
@@ -405,7 +429,8 @@ public class SegmentChecker extends Checker {
      *
      * @param coord
      *            coordinates of the givenn node
-     * @param deadendNodes dead end nodes
+     * @param deadendNodes
+     *            dead end nodes
      * @return the closest deadend node
      */
     @SuppressWarnings("unused")
@@ -434,13 +459,15 @@ public class SegmentChecker extends Checker {
      *            the route
      * @param end
      *            PTWay assigned to the end stop of the segment
-     * @return true if the sorting is correct, false otherwise.
+     * @return null if the sorting is correct, or the wrongly sorted PTWay
+     *         otherwise.
      */
-    private boolean existingWaySortingIsCorrect(PTWay start, Node startWayPreviousNodeInDirectionOfTravel, PTWay end) {
+    private PTWay existingWaySortingIsWrong(PTWay start, Node startWayPreviousNodeInDirectionOfTravel, PTWay end) {
 
         if (start == end) {
             // if both PTStops are on the same PTWay
-            return true;
+            // return true;
+            return null;
         }
 
         PTWay current = start;
@@ -457,17 +484,9 @@ public class SegmentChecker extends Checker {
             if (current.containsUnsplitRoundabout()) {
                 currentNode = manager.getCommonNode(current, nextPTWayAccortingToExistingSorting);
                 if (currentNode == null) {
-                    List<Relation> primitives = new ArrayList<>(1);
-                    primitives.add(relation);
-                    List<OsmPrimitive> highlighted = new ArrayList<>();
-                    highlighted.addAll(current.getWays());
-                    Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_STOP_BY_STOP);
-                    builder.message(tr("PT: Problem in the route segment"));
-                    builder.primitives(primitives);
-                    builder.highlight(highlighted);
-                    TestError e = builder.build();
-                    this.errors.add(e);
-                    return false;
+
+                    return current;
+
                 }
             } else {
                 // if this is a regular way, not an unsplit roundabout
@@ -479,19 +498,7 @@ public class SegmentChecker extends Checker {
                 List<PTWay> nextWaysInDirectionOfTravel = this.findNextPTWaysInDirectionOfTravel(current, currentNode);
 
                 if (!nextWaysInDirectionOfTravel.contains(nextPTWayAccortingToExistingSorting)) {
-                    List<Relation> primitives = new ArrayList<>(1);
-                    primitives.add(relation);
-                    List<OsmPrimitive> highlighted = new ArrayList<>();
-
-                    highlighted.addAll(current.getWays());
-                    
-                    Builder builder = TestError.builder(this.test, Severity.WARNING, PTAssistantValidatorTest.ERROR_CODE_STOP_BY_STOP);
-                    builder.message(tr("PT: Problem in the route segment"));
-                    builder.primitives(primitives);
-                    builder.highlight(highlighted);
-                    TestError e = builder.build();
-                    this.errors.add(e);
-                    return false;
+                    return current;
 
                 }
             }
@@ -500,14 +507,16 @@ public class SegmentChecker extends Checker {
 
         }
 
-        return true;
+        return null;
     }
 
     /**
      * Will return the same node if the way is an unsplit roundabout
      *
-     * @param way way
-     * @param node node
+     * @param way
+     *            way
+     * @param node
+     *            node
      * @return the same node if the way is an unsplit roundabout
      */
     private Node getOppositeEndNode(Way way, Node node) {
@@ -526,8 +535,10 @@ public class SegmentChecker extends Checker {
     /**
      * Does not work correctly for unsplit roundabouts
      *
-     * @param ptway way
-     * @param node node
+     * @param ptway
+     *            way
+     * @param node
+     *            node
      * @return node
      */
     private Node getOppositeEndNode(PTWay ptway, Node node) {
@@ -557,8 +568,10 @@ public class SegmentChecker extends Checker {
     /**
      * Finds the next ways for the route stop-by-stop parsing procedure
      *
-     * @param currentWay current way
-     * @param nextNodeInDirectionOfTravel next node in direction of travel
+     * @param currentWay
+     *            current way
+     * @param nextNodeInDirectionOfTravel
+     *            next node in direction of travel
      * @return the next ways for the route stop-by-stop parsing procedure
      */
     private List<PTWay> findNextPTWaysInDirectionOfTravel(PTWay currentWay, Node nextNodeInDirectionOfTravel) {
@@ -625,17 +638,31 @@ public class SegmentChecker extends Checker {
     }
 
     /**
-     * Finds fixes using sorting and removal. Modifies the messages in the test
-     * error according to the availability of automatic fixes.
+     * Finds fixes using sorting and removal. 
      */
     protected void findFixes() {
 
-        for (TestError error : wrongSegments.keySet()) {
-            // look for fixes using sorting and removing:
-            findFix(error);
+        for (Builder builder : wrongSegmentBuilders.keySet()) {
+
+            if (wrongSegmentBuilders.get(builder).getRelation() == this.relation) {
+
+                findFix(builder);
+
+            }
+        }
+
+    }
+
+    /**
+     * Modifies the error messages of the stop-by-stop test errors depending on how many fixes each of them has.
+     */
+    protected static void modifyStopByStopErrorMessages() {
+
+        for (Entry<Builder, PTRouteSegment> entry : SegmentChecker.wrongSegmentBuilders.entrySet()) {
 
             // change the error code based on the availability of fixes:
-            PTRouteSegment wrongSegment = wrongSegments.get(error);
+            Builder builder = entry.getKey();
+            PTRouteSegment wrongSegment = entry.getValue();
             List<PTRouteSegment> correctSegmentsForThisError = new ArrayList<>();
             for (PTRouteSegment segment : correctSegments) {
                 if (wrongSegment.getFirstWay().getId() == segment.getFirstWay().getId()
@@ -659,14 +686,15 @@ public class SegmentChecker extends Checker {
                 numberOfFixes = correctSegmentsForThisError.size();
             }
 
-            // change the error code:
+            // change the error message:
             if (numberOfFixes == 0) {
-                error.setMessage(tr("PT: Problem in the route segment with no automatic fix"));
+                builder.message(tr("PT: Problem in the route segment with no automatic fix"));
             } else if (numberOfFixes == 1) {
-                error.setMessage(tr("PT: Problem in the route segment with one automatic fix"));
+                builder.message(tr("PT: Problem in the route segment with one automatic fix"));
             } else {
-                error.setMessage("PT: Problem in the route segment with several automatic fixes");
+                builder.message("PT: Problem in the route segment with several automatic fixes");
             }
+
         }
 
     }
@@ -676,11 +704,12 @@ public class SegmentChecker extends Checker {
      * segment are correctly connected. If they are not, the error will be
      * marked as not fixable.
      *
-     * @param testError test error
+     * @param testError
+     *            test error
      */
-    private void findFix(TestError testError) {
+    private void findFix(Builder builder) {
 
-        PTRouteSegment wrongSegment = wrongSegments.get(testError);
+        PTRouteSegment wrongSegment = wrongSegmentBuilders.get(builder);
         PTWay startPTWay = wrongSegment.getFirstPTWay();
         PTWay endPTWay = wrongSegment.getLastPTWay();
 
@@ -706,10 +735,14 @@ public class SegmentChecker extends Checker {
     /**
      * Recursive method to parse the route segment
      *
-     * @param allFixes all fixes
-     * @param currentFix current fix
-     * @param previousNode previous node
-     * @param endWay end way
+     * @param allFixes
+     *            all fixes
+     * @param currentFix
+     *            current fix
+     * @param previousNode
+     *            previous node
+     * @param endWay
+     *            end way
      * @return list of list of ways
      */
     private List<List<PTWay>> findWaysForFix(List<List<PTWay>> allFixes, List<PTWay> currentFix, Node previousNode,
@@ -747,7 +780,8 @@ public class SegmentChecker extends Checker {
      * Fixes the error by first searching in the list of correct segments and
      * then trying to sort and remove existing route relation members
      *
-     * @param testError test error
+     * @param testError
+     *            test error
      * @return fix command
      */
     protected static Command fixError(TestError testError) {
@@ -817,8 +851,8 @@ public class SegmentChecker extends Checker {
                 return null;
             }
 
-            PTAssistantPlugin.setLastFix(new PTRouteSegment(wrongSegment.getFirstStop(),
-                    wrongSegment.getLastStop(), wrongSegment.getFixVariants().get(0), (Relation) testError.getPrimitives().iterator().next()));
+            PTAssistantPlugin.setLastFix(new PTRouteSegment(wrongSegment.getFirstStop(), wrongSegment.getLastStop(),
+                    wrongSegment.getFixVariants().get(0), (Relation) testError.getPrimitives().iterator().next()));
             return carryOutSingleFix(testError, wrongSegment.getFixVariants().get(0));
         }
 
@@ -831,8 +865,10 @@ public class SegmentChecker extends Checker {
      * This is largely a copy of the displayFixVariants() method, adapted for
      * use with the key listener
      *
-     * @param fixVariants fix variants
-     * @param testError test error
+     * @param fixVariants
+     *            fix variants
+     * @param testError
+     *            test error
      */
     private static void displayFixVariants(List<List<PTWay>> fixVariants, TestError testError) {
         // find the letters of the fix variants:
@@ -866,13 +902,13 @@ public class SegmentChecker extends Checker {
 
         // prepare the variables for the key listener:
         final TestError testErrorParameter = testError;
-        
-//        // add the key listener:
+
+        // // add the key listener:
         Main.map.mapView.requestFocus();
-        Main.map.mapView.addKeyListener(new KeyListener() { 
-            
+        Main.map.mapView.addKeyListener(new KeyListener() {
+
             public void keyTyped(KeyEvent e) {
-                 //TODO Auto-generated method stub
+                // TODO Auto-generated method stub
             }
 
             public void keyPressed(KeyEvent e) {
@@ -959,13 +995,15 @@ public class SegmentChecker extends Checker {
         editor.setVisible(true);
 
     }
-        
+
     /**
      * Carries out the fix (i.e. modifies the route) when there is only one fix
      * variant.
      *
-     * @param testError test error
-     * @param fix fix
+     * @param testError
+     *            test error
+     * @param fix
+     *            fix
      */
     private static Command carryOutSingleFix(TestError testError, List<PTWay> fix) {
         // Zoom to the problematic ways:
@@ -983,7 +1021,7 @@ public class SegmentChecker extends Checker {
                 }
             });
         }
-        
+
         // wait:
         synchronized (SegmentChecker.class) {
             try {
@@ -1042,9 +1080,10 @@ public class SegmentChecker extends Checker {
         List<TestError> wrongSegmentsToRemove = new ArrayList<>();
 
         // find all wrong ways that have the same segment:
-        for (TestError testError: wrongSegments.keySet()) {
+        for (TestError testError : wrongSegments.keySet()) {
             PTRouteSegment wrongSegment = wrongSegments.get(testError);
-            if (wrongSegment.getFirstWay() == segment.getFirstWay() && wrongSegment.getLastWay() == segment.getLastWay()) {
+            if (wrongSegment.getFirstWay() == segment.getFirstWay()
+                    && wrongSegment.getLastWay() == segment.getLastWay()) {
                 // modify the route:
                 Relation originalRelation = wrongSegment.getRelation();
                 Relation modifiedRelation = new Relation(originalRelation);
@@ -1058,7 +1097,7 @@ public class SegmentChecker extends Checker {
 
         // update the errors displayed in the validator dialog:
         List<TestError> modifiedValidatorTestErrors = new ArrayList<>();
-        for (TestError validatorTestError: Main.map.validatorDialog.tree.getErrors()) {
+        for (TestError validatorTestError : Main.map.validatorDialog.tree.getErrors()) {
             if (!wrongSegmentsToRemove.contains(validatorTestError)) {
                 modifiedValidatorTestErrors.add(validatorTestError);
             }
@@ -1066,18 +1105,19 @@ public class SegmentChecker extends Checker {
         Main.map.validatorDialog.tree.setErrors(modifiedValidatorTestErrors);
 
         // update wrong segments:
-        for (TestError testError: wrongSegmentsToRemove) {
+        for (TestError testError : wrongSegmentsToRemove) {
             wrongSegments.remove(testError);
         }
 
     }
 
     /**
-     * Resets the static list variables (used for unit testing)
+     * Resets the static list variables (used for unit tests and in Test.startTest() method)
      */
     protected static void reset() {
         correctSegments.clear();
         wrongSegments.clear();
+        wrongSegmentBuilders.clear();
     }
 
 }
