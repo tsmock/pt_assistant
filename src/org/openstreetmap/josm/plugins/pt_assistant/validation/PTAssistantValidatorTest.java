@@ -126,7 +126,6 @@ public class PTAssistantValidatorTest extends Test {
             return;
         }
 
-
         // Do some testing on stop area relations
         if (Main.pref.getBoolean("pt_assistant.stop-area-tests", true) == true && StopUtils.isStopArea(r)) {
 
@@ -145,7 +144,6 @@ public class PTAssistantValidatorTest extends Test {
             // Attach thrown errors
             this.errors.addAll(stopChecker.getErrors());
         }
-
 
         if (!RouteUtils.isTwoDirectionRoute(r)) {
             return;
@@ -178,7 +176,7 @@ public class PTAssistantValidatorTest extends Test {
      */
     private boolean downloadIncompleteMembers() {
 
-        final int[] userSelection = {0};
+        final int[] userSelection = { 0 };
 
         try {
 
@@ -228,7 +226,8 @@ public class PTAssistantValidatorTest extends Test {
      * Shows the dialog asking the user about an incomplete member download
      *
      * @return user's selection
-     * @throws InterruptedException if interrupted
+     * @throws InterruptedException
+     *             if interrupted
      */
     private int showIncompleteMembersDownloadDialog() throws InterruptedException {
 
@@ -266,7 +265,7 @@ public class PTAssistantValidatorTest extends Test {
             }
         }
 
-        final int[] userInput = {0};
+        final int[] userInput = { 0 };
         final long idParameter = r.getId();
         final int directionErrorParameter = numberOfDirectionErrors;
         final int roadTypeErrorParameter = numberOfRoadTypeErrors;
@@ -333,7 +332,8 @@ public class PTAssistantValidatorTest extends Test {
     /**
      * Carries out the second stage of the testing: sorting
      *
-     * @param r relation
+     * @param r
+     *            relation
      */
     private void proceedWithSorting(Relation r) {
 
@@ -372,7 +372,8 @@ public class PTAssistantValidatorTest extends Test {
      * Carries out the stop-by-stop testing which includes building the route
      * data model.
      *
-     * @param r route relation
+     * @param r
+     *            route relation
      */
     private void proceedAfterSorting(Relation r) {
 
@@ -401,36 +402,32 @@ public class PTAssistantValidatorTest extends Test {
             segmentChecker.findFixes();
         }
 
-        for (TestError error: segmentChecker.getErrors()) {
+        for (TestError error : segmentChecker.getErrors()) {
             if (error.getCode() != PTAssistantValidatorTest.ERROR_CODE_RELAITON_MEMBER_ROLES) {
                 this.errors.add(error);
             }
         }
     }
-    
+
     /**
-     * Overrides the superclass method
-     */
-    public void startTest() {
-        super.startTest(progressMonitor);
-        SegmentChecker.reset();
-    }
-    
-    /**
-     * Method is called after all primitives has been visited, overrides the method of the superclass.
+     * Method is called after all primitives has been visited, overrides the
+     * method of the superclass.
      */
     public void endTest() {
         
         // modify the error messages for the stop-by-stop test:
         SegmentChecker.modifyStopByStopErrorMessages();
-        
+
         // add the stop-by-stop errors with modified messages:
-        for (Entry<Builder, PTRouteSegment> entry: SegmentChecker.wrongSegmentBuilders.entrySet()) {    		
+        for (Entry<Builder, PTRouteSegment> entry : SegmentChecker.wrongSegmentBuilders.entrySet()) {
             TestError error = entry.getKey().build();
             SegmentChecker.wrongSegments.put(error, entry.getValue());
             this.errors.add(error);
         }
         
+        // reset the static collections in SegmentChecker:
+        SegmentChecker.reset();
+
         super.endTest();
 
     }
@@ -582,8 +579,7 @@ public class PTAssistantValidatorTest extends Test {
         Builder builder = TestError.builder(this, Severity.WARNING, ERROR_CODE_DIRECTION);
         builder.message(tr("PT: dummy test warning"));
         builder.primitives(primitives);
-        errors.add(
-                builder.build());
+        errors.add(builder.build());
     }
 
 }
