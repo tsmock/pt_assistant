@@ -39,7 +39,7 @@ import org.openstreetmap.josm.plugins.pt_assistant.utils.RouteUtils;
  * the ways and it. The routes will be fixed by connecting the entry
  * point to the exit point of the roundabout.
  *
- *	@author giacomo
+ * @author giacomo
  */
 public class SplitRoundaboutAction extends JosmAction {
 
@@ -75,7 +75,7 @@ public class SplitRoundaboutAction extends JosmAction {
                 future.get();
                 continueAfterDownload(roundabout);
             } catch (InterruptedException | ExecutionException e1) {
-                Main.error(e1);
+                 Main.error(e1);
                 return;
             }
         });
