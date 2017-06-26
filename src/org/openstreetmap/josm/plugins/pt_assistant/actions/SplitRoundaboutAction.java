@@ -185,7 +185,7 @@ public class SplitRoundaboutAction extends JosmAction {
             for(Way parent: parents) {
                 for(OsmPrimitive prim : parent.getReferrers()) {
                     if(prim.getType() == OsmPrimitiveType.RELATION &&
-                            RouteUtils.isTwoDirectionRoute((Relation) prim))
+                            RouteUtils.isPTRoute((Relation) prim))
                         return false;
                 }
             }
@@ -202,7 +202,7 @@ public class SplitRoundaboutAction extends JosmAction {
         Map<Relation, List<Integer>> savedPositions = new HashMap<>();
         List <OsmPrimitive> referrers = roundabout.getReferrers();
         referrers.removeIf(r -> r.getType() != OsmPrimitiveType.RELATION
-                || !RouteUtils.isTwoDirectionRoute((Relation) r));
+                || !RouteUtils.isPTRoute((Relation) r));
 
         for(OsmPrimitive currPrim : referrers) {
             Relation curr = (Relation) currPrim;
@@ -231,7 +231,9 @@ public class SplitRoundaboutAction extends JosmAction {
         OsmPrimitive selected = selection.iterator().next();
         if(selected.getType() != OsmPrimitiveType.WAY)
             return;
-        if(((Way)selected).isClosed() && selected.hasTag("junction", "roundabout")) {
+        if(((Way)selected).isClosed()
+                && (selected.hasTag("junction", "roundabout")
+                        || selected.hasTag("oneway", "yes"))) {
             setEnabled(true);
             return;
         }

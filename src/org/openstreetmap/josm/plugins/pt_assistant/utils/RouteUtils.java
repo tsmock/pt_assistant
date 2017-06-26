@@ -18,6 +18,7 @@ import org.openstreetmap.josm.data.osm.Way;
  */
 public final class RouteUtils {
 
+    private final static String ptVersionTag = "public_transport:version";
     private RouteUtils() {
         // private constructor for util classes
     }
@@ -31,13 +32,35 @@ public final class RouteUtils {
      * @return true if the route belongs to the categories that can be validated
      *         with the pt_assistant plugin, false otherwise.
      */
-    public static boolean isTwoDirectionRoute(Relation r) {
+    public static boolean isVersionTwoPTRoute(Relation r) {
 
-        if (r == null) {
+        if(!isPTRoute(r)) {
             return false;
         }
 
-        if (!r.hasKey("route") || !r.hasTag("public_transport:version", "2")) {
+        if (!r.hasTag(ptVersionTag, "2")) {
+            return false;
+        }
+
+        return !r.hasTag("bus", "on_demand");
+    }
+
+    public static boolean isVersionOnePTRoute(Relation r) {
+
+        if(!isPTRoute(r)) {
+            return false;
+        }
+
+        if(r.get(ptVersionTag) == null) {
+            return true;
+        }
+
+        return r.hasTag(ptVersionTag, "1");
+    }
+
+    public static boolean isPTRoute(Relation r) {
+
+        if (r == null) {
             return false;
         }
 
@@ -45,8 +68,7 @@ public final class RouteUtils {
                 "bus", "trolleybus", "share_taxi",
                 "tram", "light_rail", "subway", "train"};
 
-        return r.hasTag("route", acceptedRouteTags)
-             && !r.hasTag("bus", "on_demand");
+        return r.hasTag("route", acceptedRouteTags);
     }
 
     /**
@@ -206,15 +228,9 @@ public final class RouteUtils {
             return true;
         }
 
-        if (way.hasTag("highway", "pedestrian")
-                && (way.hasTag("bus", "yes")
-                        || way.hasTag("psv", "yes")
-                        || way.hasTag("bus", "designated")
-                        || way.hasTag("psv", "designated"))) {
-            return true;
-        }
-
-        return false;
+        return (way.hasTag("highway", "pedestrian")
+                && (way.hasTag("bus", "yes", "designated")
+                    || way.hasTag("psv", "yes", "designated")));
     }
 
     /**
