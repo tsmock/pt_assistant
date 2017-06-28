@@ -104,7 +104,7 @@ public class PTAssistantPlugin extends Plugin {
     public static void setLastFix(PTRouteSegment segment) {
         lastFix = segment;
         SwingUtilities.invokeLater(() ->
-            repeatLastFixMenu.setEnabled(segment != null));
+        repeatLastFixMenu.setEnabled(segment != null));
     }
 
     /**
@@ -124,13 +124,13 @@ public class PTAssistantPlugin extends Plugin {
         highlightedRelations.add(highlightedRelation);
         if(!editHighlightedRelationsMenu.isEnabled()) {
             SwingUtilities.invokeLater(() ->
-                editHighlightedRelationsMenu.setEnabled(true));
+            editHighlightedRelationsMenu.setEnabled(true));
         }
     }
 
     public static void clearHighlightedRelations() {
         highlightedRelations.clear();
         SwingUtilities.invokeLater(() ->
-                editHighlightedRelationsMenu.setEnabled(false));
+        editHighlightedRelationsMenu.setEnabled(false));
     }
 }

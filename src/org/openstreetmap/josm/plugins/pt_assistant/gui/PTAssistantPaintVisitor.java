@@ -286,7 +286,7 @@ public class PTAssistantPaintVisitor extends PaintVisitor {
     @Override
     protected void drawNode(Node n, Color color) {
         if (mv == null || g == null) {
-            return;
+            ;
         }
         Point p = mv.getPoint(n);
         if (p == null) {
