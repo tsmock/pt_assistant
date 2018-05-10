@@ -40,8 +40,8 @@ import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
- * The DoubleSplitAction is a mapmode that allows users to add
- * a bus_bay,a bridge or a tunnel .
+ * The DoubleSplitAction is a mapmode that allows users to add a bus_bay,a
+ * bridge or a tunnel .
  *
  * @author Biswesh
  */
@@ -62,8 +62,7 @@ public class DoubleSplitAction extends MapMode {
      * Creates a new DoubleSplitAction
      */
     public DoubleSplitAction() {
-        super(tr(MAP_MODE_NAME), "bus", tr(MAP_MODE_NAME),
-                null, getCursor());
+        super(tr(MAP_MODE_NAME), "logo_double_split", tr(MAP_MODE_NAME), null, getCursor());
 
         cursorJoinNode = ImageProvider.getCursor("crosshair", "joinnode");
         cursorJoinWay = ImageProvider.getCursor("crosshair", "joinway");
@@ -85,27 +84,209 @@ public class DoubleSplitAction extends MapMode {
 
     @Override
     public void exitMode() {
-            // if we have one node selected and we exit the mode then undo the node
-            if (nodeCount == 1) {
-                for(int i=0;i<2;i++) {
-                    MainApplication.undoRedo.undo();
-                }
-                nodeCount = 0;
-                atNodes.clear();
-                previousAffectedWay = null;
-                updateHighlights();
+        // if we have one node selected and we exit the mode then undo the node
+        if (nodeCount == 1) {
+            for (int i = 0; i < 2; i++) {
+                MainApplication.undoRedo.undo();
             }
+            nodeCount = 0;
+            atNodes.clear();
+            previousAffectedWay = null;
+            updateHighlights();
+        }
         super.exitMode();
         MainApplication.getMap().mapView.removeMouseListener(this);
         MainApplication.getMap().mapView.removeMouseMotionListener(this);
     }
 
+    private void reset() {
+        nodeCount = 0;
+        atNodes.clear();
+        previousAffectedWay = null;
+        updateHighlights();
+    }
+
+    private boolean startEndPoints(){
+        if (atNodes.get(0).isConnectionNode() && atNodes.get(1).isConnectionNode()) {
+            for (Way way : atNodes.get(0).getParentWays()) {
+                if (atNodes.get(1).getParentWays().contains(way)) {
+                    List<TagMap> affectedKeysList = new ArrayList<>();
+                    affectedKeysList.add(way.getKeys());
+                    newHighlights.add(way);
+                    dialogBox(Arrays.asList(way), affectedKeysList);
+                    return true;
+                }
+            }
+
+            reset();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean firstNodeIsConnectionNode(Node node, Way affected) {
+        if (node.isConnectionNode()) {
+            if (node.getParentWays().contains(affected))
+                previousAffectedWay = affected;
+            else {
+                reset();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean secondNodeIsConnectionNode(Node node) {
+        if (atNodes.get(1).isConnectionNode()) {
+            if (atNodes.get(1).getParentWays().contains(previousAffectedWay))
+                return false;
+            else {
+                reset();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Node checkCommonNode(Way affected) {
+
+        // check if they have any common node
+        List<Node> presentNodeList = affected.getNodes();
+        for (Node previousNode : previousAffectedWay.getNodes()) {
+            if (presentNodeList.contains(previousNode)) {
+                return previousNode;
+            }
+        }
+
+        return null;
+    }
+
+    private void removeFirstNode(Way affected) {
+
+        // select the first node
+        Node nodeToBeDeleted = atNodes.get(0);
+
+        if (nodeToBeDeleted != null) {
+            // remove first node from list
+            atNodes.remove(0);
+
+            // remove last 2 commands from command list
+            Command lastCommand = MainApplication.undoRedo.commands.removeLast();
+            Command secondLastCommand = MainApplication.undoRedo.commands.removeLast();
+
+            // now we can undo the previous node as the command for present node has been
+            // removed from list
+            for (int i = 0; i < 2; i++) {
+                MainApplication.undoRedo.undo();
+            }
+
+            // now again add back the last 2 commands, so overall we undo third last and
+            // fourth last command
+            MainApplication.undoRedo.commands.add(secondLastCommand);
+            MainApplication.undoRedo.commands.add(lastCommand);
+
+            MainApplication.undoRedo.redo();
+        }
+
+        previousAffectedWay = affected;
+
+    }
+
+    private void addKeysOnBothWays(Node commonNode, Way affected) {
+        List<TagMap> affectedKeysList = new ArrayList<>();
+
+        List<Node> nodelist1 = Arrays.asList(atNodes.get(0), commonNode);
+        List<Node> nodelist2 = Arrays.asList(atNodes.get(1), commonNode);
+
+        affectedKeysList.add(previousAffectedWay.getKeys());
+        affectedKeysList.add(affected.getKeys());
+
+        // split both the ways separately
+
+        SplitWayCommand result1 = SplitWayCommand.split(previousAffectedWay, nodelist1, Collections.emptyList());
+
+        SplitWayCommand result2 = SplitWayCommand.split(affected, nodelist2, Collections.emptyList());
+
+        MainApplication.undoRedo.add(result1);
+        MainApplication.undoRedo.add(result2);
+
+        Way way1 = null, way2 = null;
+
+        // Find middle way which is a part of both the ways, so find the 2 ways which
+        // together would form middle way
+        boolean isOriginalWay = true; // we check both the original way and new ways
+        for (Way way : result1.getNewWays()) {
+            if (way.containsNode(commonNode) && way.containsNode(atNodes.get(0))) {
+                way1 = way;
+                isOriginalWay = false;
+                break;
+            }
+        }
+        if (isOriginalWay) {
+            Way way = result1.getOriginalWay();
+            if (way.containsNode(commonNode) && way.containsNode(atNodes.get(0))) {
+                way1 = way;
+            }
+        }
+
+        // now do for 2nd way
+        isOriginalWay = true;
+
+        for (Way way : result2.getNewWays()) {
+            if (way.containsNode(commonNode) && way.containsNode(atNodes.get(1))) {
+                way2 = way;
+                isOriginalWay = false;
+                break;
+            }
+        }
+
+        if (isOriginalWay) {
+            Way way = result2.getOriginalWay();
+            if (way.containsNode(commonNode) && way.containsNode(atNodes.get(1))) {
+                way2 = way;
+            }
+        }
+
+        if (way1 != null && way2 != null) {
+            List<Way> selectedWays = Arrays.asList(way1, way2);
+            newHighlights.add(way1);
+            newHighlights.add(way2);
+            dialogBox(selectedWays, affectedKeysList);
+        }
+    }
+
+    private void addKeys(Way affected) {
+        List<TagMap> affectedKeysList = new ArrayList<>();
+        Way selectedWay = null;
+
+        SplitWayCommand result = SplitWayCommand.split(affected, atNodes, Collections.emptyList());
+        if (result == null)
+            return;
+
+        MainApplication.undoRedo.add(result);
+
+        // Find the middle way after split
+        List<Way> affectedWayList = result.getNewWays();
+        for (Way way : affectedWayList) {
+            if (atNodes.contains(way.firstNode()) && atNodes.contains(way.lastNode())) {
+                selectedWay = way;
+                break;
+            }
+        }
+
+        if (selectedWay != null) {
+            affectedKeysList.add(affected.getKeys());
+            newHighlights.add(selectedWay);
+            dialogBox(Arrays.asList(selectedWay), affectedKeysList);
+        }
+    }
+
     @Override
     public void mouseMoved(MouseEvent e) {
 
-        //while the mouse is moving, surroundings are checked
-        //if anything is found, it will be highlighted.
-        //priority is given to nodes
+        // while the mouse is moving, surroundings are checked
+        // if anything is found, it will be highlighted.
+        // priority is given to nodes
         Cursor newCurs = getCursor();
 
         Node n = MainApplication.getMap().mapView.getNearestNode(e.getPoint(), OsmPrimitive::isUsable);
@@ -113,8 +294,8 @@ public class DoubleSplitAction extends MapMode {
             newHighlights.add(n);
             newCurs = cursorJoinNode;
         } else {
-            List<WaySegment> wss =
-                    MainApplication.getMap().mapView.getNearestWaySegments(e.getPoint(), OsmPrimitive::isSelectable);
+            List<WaySegment> wss = MainApplication.getMap().mapView.getNearestWaySegments(e.getPoint(),
+                    OsmPrimitive::isSelectable);
 
             if (!wss.isEmpty()) {
                 for (WaySegment ws : wss) {
@@ -134,7 +315,7 @@ public class DoubleSplitAction extends MapMode {
         Boolean newNode = false;
         Node newStopPos;
 
-        //check if the user as selected an existing node, or a new one
+        // check if the user has selected an existing node, or a new one
         Node n = MainApplication.getMap().mapView.getNearestNode(e.getPoint(), OsmPrimitive::isUsable);
         if (n == null) {
             newNode = true;
@@ -142,7 +323,6 @@ public class DoubleSplitAction extends MapMode {
         } else {
             newStopPos = new Node(n);
         }
-
 
         if (newNode) {
             MainApplication.undoRedo.add(new AddCommand(getLayerManager().getEditDataSet(), newStopPos));
@@ -153,7 +333,7 @@ public class DoubleSplitAction extends MapMode {
 
         MainApplication.getLayerManager().getEditLayer().data.setSelected(newStopPos);
 
-        //join the node to the way only if the node is new
+        // join the node to the way only if the node is new
         if (newNode) {
             JoinNodeWayAction joinNodeWayAction = JoinNodeWayAction.createMoveNodeOntoWayAction();
             joinNodeWayAction.actionPerformed(null);
@@ -177,192 +357,54 @@ public class DoubleSplitAction extends MapMode {
             return;
         }
 
-
         // if both the nodes are starting and ending points of the same way
         // we don't split the way, just add new key-value to the way
-        if (atNodes.get(0).isConnectionNode() && atNodes.get(1).isConnectionNode()) {
-                for (Way way : atNodes.get(0).getParentWays()) {
-                    if ( atNodes.get(1).getParentWays().contains(way)) {
-                            List<TagMap> affectedKeysList = new ArrayList<>();
-                            affectedKeysList.add(way.getKeys());
-                        newHighlights.add(way);
-                    dialogBox(Arrays.asList(way), affectedKeysList);
-                            return;
-                    }
-            }
-                nodeCount = 0;
-            atNodes.clear();
-            previousAffectedWay = null;
-            updateHighlights();
+        boolean areStartEndPoints = startEndPoints();
+        if (areStartEndPoints)
             return;
-        }
 
         // if first node is a connection node
-        if (atNodes.get(0).isConnectionNode()) {
-                if (atNodes.get(0).getParentWays().contains(affected))
-                        previousAffectedWay = affected;
-                else {
-                        nodeCount = 0;
-                    atNodes.clear();
-                    previousAffectedWay = null;
-                    updateHighlights();
-                    return;
-                }
-        }
+        boolean isConnectionNode = firstNodeIsConnectionNode(atNodes.get(0), affected);
+        if (isConnectionNode)
+            return;
 
         // if second node is a connection node
-        if (atNodes.get(1).isConnectionNode()) {
-                if (atNodes.get(1).getParentWays().contains(previousAffectedWay))
-                    affected = previousAffectedWay;
-                else {
-                        nodeCount = 0;
-                    atNodes.clear();
-                    previousAffectedWay = null;
-                    updateHighlights();
-                    return;
-                }
+        isConnectionNode = secondNodeIsConnectionNode(atNodes.get(1));
+        if (isConnectionNode)
+            return;
+        else {
+            if (atNodes.get(1).isConnectionNode()) {
+                affected = previousAffectedWay;
+            }
         }
 
-        // if both the nodes are not on same way and don't have any common node then make second node as first node
+
+        // if both the nodes are not on same way and don't have any common node then
+        // make second node as first node
         Node commonNode = null;
         boolean twoWaysWithCommonNode = false;
         if (previousAffectedWay != affected) {
-                // check if they have any common node
-                boolean canSplit = false;
-                List<Node> presentNodeList = affected.getNodes();
-                for (Node previousNode : previousAffectedWay.getNodes()) {
-                        if (presentNodeList.contains(previousNode)) {
-                                canSplit = true;
-                                twoWaysWithCommonNode = true;
-                                commonNode = previousNode;
-                        }
-                }
-                // if no common node
-                if (!canSplit) {
-                    // select the first node
-                    Node nodeToBeDeleted = atNodes.get(0);
-
-                    if (nodeToBeDeleted != null) {
-                        // remove first node from list
-                        atNodes.remove(0);
-
-                        // remove last 2 commands from command list
-                        Command lastCommand = MainApplication.undoRedo.commands.removeLast();
-                        Command secondLastCommand = MainApplication.undoRedo.commands.removeLast();
-
-                        // now we can undo the previous node as the command for present node has been removed from list
-                        for(int i=0;i<2;i++) {
-                            MainApplication.undoRedo.undo();
-                        }
-
-                        // now again add back the last 2 commands, so overall we undo third last and fourth last command
-                        MainApplication.undoRedo.commands.add(secondLastCommand);
-                        MainApplication.undoRedo.commands.add(lastCommand);
-
-                        MainApplication.undoRedo.redo();
-                    }
-                previousAffectedWay = affected;
+            commonNode = checkCommonNode(affected);
+            if (commonNode == null) {
+                removeFirstNode(affected);
                 return;
-                }
+            } else {
+                twoWaysWithCommonNode = true;
+            }
         }
 
-// ****need to add undoredo for previousAffectedWay, atNode, nodeCount
 
-        List<TagMap> affectedKeysList = new ArrayList<>();
+        // ****need to add undoredo for previousAffectedWay, atNode, nodeCount
 
-        if ( twoWaysWithCommonNode ) {
-                    List<Node> nodelist1 = Arrays.asList(atNodes.get(0),commonNode);
-                    List<Node> nodelist2 = Arrays.asList(atNodes.get(1),commonNode);
-
-                    affectedKeysList.add(previousAffectedWay.getKeys());
-                    affectedKeysList.add(affected.getKeys());
-
-                    // split both the ways separately
-
-                    SplitWayCommand result1 = SplitWayCommand.split(
-                        previousAffectedWay, nodelist1 , Collections.emptyList());
-
-                SplitWayCommand result2 = SplitWayCommand.split(
-                        affected, nodelist2 , Collections.emptyList());
-
-                    MainApplication.undoRedo.add(result1);
-                MainApplication.undoRedo.add(result2);
-
-                Way way1 = null, way2 = null;
-
-                // Find middle way which is a part of both the ways, so find the 2 ways which together would form middle way
-                boolean isOriginalWay = true;  // we check both the original way and new ways
-                for (Way way : result1.getNewWays()) {
-                    if (way.containsNode(commonNode) && way.containsNode(atNodes.get(0))) {
-                        way1 = way;
-                        isOriginalWay = false;
-                        break;
-                    }
-                }
-                if (isOriginalWay) {
-                        Way way = result1.getOriginalWay();
-                        if (way.containsNode(commonNode) && way.containsNode(atNodes.get(0))) {
-                            way1 = way;
-                        }
-                }
-
-                // now do for 2nd way
-                isOriginalWay = true;
-
-                for (Way way : result2.getNewWays()) {
-                    if (way.containsNode(commonNode) && way.containsNode(atNodes.get(1))) {
-                        way2 = way;
-                        isOriginalWay = false;
-                        break;
-                    }
-                 }
-
-                if (isOriginalWay) {
-                        Way way = result2.getOriginalWay();
-                        if (way.containsNode(commonNode) && way.containsNode(atNodes.get(1))) {
-                            way2 = way;
-                        }
-                }
-
-                if (way1!=null && way2!=null) {
-                    List<Way> selectedWays = Arrays.asList(way1, way2);
-                    newHighlights.add(way1);
-                    newHighlights.add(way2);
-                    dialogBox(selectedWays, affectedKeysList);
-                }
+        if (twoWaysWithCommonNode) {
+            addKeysOnBothWays(commonNode, affected);
 
         } else {
-
-                Way selectedWay = null;
-
-                SplitWayCommand result = SplitWayCommand.split(
-                        affected, atNodes , Collections.emptyList());
-            if (result == null)
-                    return;
-
-                MainApplication.undoRedo.add(result);
-
-            // Find the middle way after split
-            List<Way> affectedWayList = result.getNewWays();
-            for (Way way : affectedWayList) {
-                if (atNodes.contains(way.firstNode()) && atNodes.contains(way.lastNode())) {
-                    selectedWay = way;
-                    break;
-                }
-            }
-
-            if (selectedWay != null) {
-                    affectedKeysList.add(affected.getKeys());
-                    newHighlights.add(selectedWay);
-                dialogBox(Arrays.asList(selectedWay), affectedKeysList);
-            }
+            addKeys(affected);
         }
 
         // reset values of all the variables after two nodes are selected and split
-        nodeCount = 0;
-        atNodes.clear();
-        previousAffectedWay = null;
-        updateHighlights();
+        reset();
 
     }
 
@@ -378,7 +420,9 @@ public class DoubleSplitAction extends MapMode {
 
     }
 
-    //turn off what has been highlighted on last mouse move and highlight what has to be highlighted now
+    // turn off what has been highlighted on last mouse move and highlight what has
+    // to be highlighted now
+
     private void updateHighlights() {
         if (oldHighlights.isEmpty() && newHighlights.isEmpty()) {
             return;
@@ -399,8 +443,7 @@ public class DoubleSplitAction extends MapMode {
         newHighlights.clear();
     }
 
-
-    //A dialogBox to query whether to select bus_bay, tunnel or bridge.
+    // A dialogBox to query whether to select bus_bay, tunnel or bridge.
 
     static class SelectFromOptionDialog extends ExtendedDialog {
         static final AtomicInteger DISPLAY_COUNT = new AtomicInteger();
@@ -410,8 +453,8 @@ public class DoubleSplitAction extends MapMode {
         private List<TagMap> affectedKeysList;
 
         SelectFromOptionDialog(List<Way> selectedWay, List<TagMap> affectedKeysList) {
-            super(Main.parent, tr("What do you want the segment to be?"),
-                    new String[]{tr("Ok"), tr("Cancel")}, true);
+            super(Main.parent, tr("What do you want the segment to be?"), new String[] { tr("Ok"), tr("Cancel") },
+                    true);
             this.selectedWay = selectedWay;
             this.affectedKeysList = affectedKeysList;
 
@@ -422,23 +465,22 @@ public class DoubleSplitAction extends MapMode {
             final JPanel pane = new JPanel(new GridBagLayout());
             pane.add(new JLabel("Select the appropriate option"), GBC.eol().fill(GBC.HORIZONTAL));
 
-
             keys = new JComboBox<>();
             values = new JComboBox<>();
             keys.setEditable(true);
-            keys.setModel(new DefaultComboBoxModel<>(new String[]{"bus_bay", "bridge", "tunnel"}));
-            values.setModel(new DefaultComboBoxModel<>(new String[]{"both", "right", "left"}));
+            keys.setModel(new DefaultComboBoxModel<>(new String[] { "bus_bay", "bridge", "tunnel" }));
+            values.setModel(new DefaultComboBoxModel<>(new String[] { "both", "right", "left" }));
 
-            //below code changes the list in values on the basis of key
-            keys.addActionListener (new ActionListener () {
+            // below code changes the list in values on the basis of key
+            keys.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if ("bus_bay".equals(keys.getSelectedItem())){
-                        values.setModel(new DefaultComboBoxModel<>(new String[]{"both", "right", "left"}));
-                    } else if ("bridge".equals(keys.getSelectedItem())){
-                        values.setModel(new DefaultComboBoxModel<>(new String[]{"yes"}));
-                    } else if ("tunnel".equals(keys.getSelectedItem())){
-                        values.setModel(new DefaultComboBoxModel<>(new String[]{"yes", "culvert"}));
+                    if ("bus_bay".equals(keys.getSelectedItem())) {
+                        values.setModel(new DefaultComboBoxModel<>(new String[] { "both", "right", "left" }));
+                    } else if ("bridge".equals(keys.getSelectedItem())) {
+                        values.setModel(new DefaultComboBoxModel<>(new String[] { "yes" }));
+                    } else if ("tunnel".equals(keys.getSelectedItem())) {
+                        values.setModel(new DefaultComboBoxModel<>(new String[] { "yes", "culvert" }));
                     }
                 }
             });
@@ -457,30 +499,30 @@ public class DoubleSplitAction extends MapMode {
 
             if (getValue() == 1) {
                 TagMap newKeys1 = this.affectedKeysList.get(0);
-                    newKeys1.put(keys.getSelectedItem().toString(), values.getSelectedItem().toString());
+                newKeys1.put(keys.getSelectedItem().toString(), values.getSelectedItem().toString());
 
-                    if (keys.getSelectedItem() == "bridge") {
+                if (keys.getSelectedItem() == "bridge") {
                     newKeys1.put("layer", "1");
                     this.selectedWay.get(0).setKeys(newKeys1);
-                } else if(keys.getSelectedItem() == "tunnel") {
+                } else if (keys.getSelectedItem() == "tunnel") {
                     newKeys1.put("layer", "-1");
                     this.selectedWay.get(0).setKeys(newKeys1);
                 } else {
-                        this.selectedWay.get(0).setKeys(newKeys1);
+                    this.selectedWay.get(0).setKeys(newKeys1);
                 }
 
-                if ( this.affectedKeysList.size() == 2) {
+                if (this.affectedKeysList.size() == 2) {
                     TagMap newKeys2 = this.affectedKeysList.get(1);
                     newKeys2.put(keys.getSelectedItem().toString(), values.getSelectedItem().toString());
 
                     if (keys.getSelectedItem() == "bridge") {
                         newKeys2.put("layer", "1");
                         this.selectedWay.get(1).setKeys(newKeys2);
-                    } else if(keys.getSelectedItem() == "tunnel") {
+                    } else if (keys.getSelectedItem() == "tunnel") {
                         newKeys2.put("layer", "-1");
                         this.selectedWay.get(1).setKeys(newKeys2);
                     } else {
-                            this.selectedWay.get(1).setKeys(newKeys2);
+                        this.selectedWay.get(1).setKeys(newKeys2);
                     }
                 }
             }
