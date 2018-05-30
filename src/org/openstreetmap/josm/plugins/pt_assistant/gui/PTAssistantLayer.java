@@ -38,13 +38,13 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * @author darya
  *
  */
-public final class PTAssistantLayer extends Layer
-        implements LayerChangeListener {
+public final class PTAssistantLayer extends Layer implements LayerChangeListener {
 
     private List<OsmPrimitive> primitives = new ArrayList<>();
     private PTAssistantPaintVisitor paintVisitor;
     private HashMap<Character, List<PTWay>> fixVariants = new HashMap<>();
     private HashMap<Way, List<Character>> wayColoring = new HashMap<>();
+    public String modeOfTravel = null;
 
     public PTAssistantLayer() {
         super("pt_assistant layer");
@@ -55,7 +55,8 @@ public final class PTAssistantLayer extends Layer
     /**
      * Adds a primitive (route) to be displayed in this layer
      *
-     * @param primitive primitive (route)
+     * @param primitive
+     *            primitive (route)
      */
     public void addPrimitive(OsmPrimitive primitive) {
         this.primitives.add(primitive);
@@ -77,7 +78,8 @@ public final class PTAssistantLayer extends Layer
     /**
      * Adds the first 5 fix variants to be displayed in the pt_assistant layer
      *
-     * @param fixVariants fix variants
+     * @param fixVariants
+     *            fix variants
      */
     public void addFixVariants(List<List<PTWay>> fixVariants) {
         HashMap<List<PTWay>, Character> fixVariantLetterMap = new HashMap<>();
@@ -110,10 +112,11 @@ public final class PTAssistantLayer extends Layer
     }
 
     /**
-     * Returns fix variant (represented by a list of PTWays) that corresponds to
-     * the given character.
+     * Returns fix variant (represented by a list of PTWays) that corresponds to the
+     * given character.
      *
-     * @param c character
+     * @param c
+     *            character
      * @return fix variant
      */
     public List<PTWay> getFixVariant(char c) {
@@ -134,7 +137,6 @@ public final class PTAssistantLayer extends Layer
         }
 
         paintVisitor.visitFixVariants(fixVariants, wayColoring);
-
     }
 
     @Override
@@ -149,9 +151,9 @@ public final class PTAssistantLayer extends Layer
 
     @Override
     public Action[] getMenuEntries() {
-        return new Action[] {LayerListDialog.getInstance().createShowHideLayerAction(),
+        return new Action[] { LayerListDialog.getInstance().createShowHideLayerAction(),
                 LayerListDialog.getInstance().createDeleteLayerAction(), SeparatorLayerAction.INSTANCE,
-                new RenameLayerAction(null, this), SeparatorLayerAction.INSTANCE, new LayerListPopup.InfoAction(this)};
+                new RenameLayerAction(null, this), SeparatorLayerAction.INSTANCE, new LayerListPopup.InfoAction(this) };
     }
 
     @Override
@@ -184,7 +186,8 @@ public final class PTAssistantLayer extends Layer
     /**
      * Repaints the layer in cases when there was no selection change
      *
-     * @param relation relation
+     * @param relation
+     *            relation
      */
     public void repaint(Relation relation) {
         primitives.clear();
@@ -205,6 +208,16 @@ public final class PTAssistantLayer extends Layer
         paintVisitor.visitFixVariants(fixVariants, wayColoring);
 
         MainApplication.getMap().mapView.repaint();
+        setModeOfTravel(relation);
+    }
+
+    private void setModeOfTravel(Relation relation) {
+        if (relation.hasKey("route"))
+            modeOfTravel = relation.get("route");
+    }
+
+    public String getModeOfTravel() {
+        return modeOfTravel;
     }
 
     @Override
