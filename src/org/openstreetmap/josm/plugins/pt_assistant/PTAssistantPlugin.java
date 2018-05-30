@@ -1,11 +1,18 @@
 // License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.pt_assistant;
 
+import static org.openstreetmap.josm.gui.help.HelpUtil.ht;
+import static org.openstreetmap.josm.tools.I18n.trc;
+
+import java.awt.Component;
 import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -20,9 +27,12 @@ import org.openstreetmap.josm.plugins.Plugin;
 import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.plugins.pt_assistant.actions.AddStopPositionAction;
 import org.openstreetmap.josm.plugins.pt_assistant.actions.CreatePlatformNodeAction;
+import org.openstreetmap.josm.plugins.pt_assistant.actions.CreatePlatformNodeThroughReplaceAction;
+import org.openstreetmap.josm.plugins.pt_assistant.actions.CreatePlatformShortcutAction;
 import org.openstreetmap.josm.plugins.pt_assistant.actions.DoubleSplitAction;
 import org.openstreetmap.josm.plugins.pt_assistant.actions.EdgeSelectionAction;
 import org.openstreetmap.josm.plugins.pt_assistant.actions.EditHighlightedRelationsAction;
+import org.openstreetmap.josm.plugins.pt_assistant.actions.ExtractPlatformNodeAction;
 import org.openstreetmap.josm.plugins.pt_assistant.actions.PTWizardAction;
 import org.openstreetmap.josm.plugins.pt_assistant.actions.RepeatLastFixAction;
 import org.openstreetmap.josm.plugins.pt_assistant.actions.SortPTRouteMembersAction;
@@ -60,25 +70,22 @@ public class PTAssistantPlugin extends Plugin {
      * Main constructor.
      *
      * @param info
-     *            Required information of the plugin. Obtained from the jar
-     *            file.
+     *            Required information of the plugin. Obtained from the jar file.
      */
     public PTAssistantPlugin(PluginInformation info) {
         super(info);
         OsmValidator.addTest(PTAssistantValidatorTest.class);
         OsmValidator.addTest(BicycleFootRouteValidatorTest.class);
 
+        MainMenu menu = MainApplication.getMenu();
+        JMenu PublicTransportMenu = menu.addMenu("File", /* I18N: mnemonic: F */ trc("menu", "Public Transport"),
+                KeyEvent.VK_P, 5, ht("/Menu/Public Transport"));
+
         DataSet.addSelectionListener(PTAssistantLayerManager.PTLM);
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(PTAssistantLayerManager.PTLM);
-        RepeatLastFixAction repeatLastFixAction = new RepeatLastFixAction();
-        EditHighlightedRelationsAction editHighlightedRelationsAction = new EditHighlightedRelationsAction();
-        repeatLastFixMenu = MainMenu.add(MainApplication.getMenu().toolsMenu, repeatLastFixAction);
-        editHighlightedRelationsMenu = MainMenu.add(MainApplication.getMenu().toolsMenu, editHighlightedRelationsAction);
-        MainMenu.add(MainApplication.getMenu().toolsMenu, new SplitRoundaboutAction());
-        MainMenu.add(MainApplication.getMenu().toolsMenu, new CreatePlatformNodeAction());
-        MainMenu.add(MainApplication.getMenu().toolsMenu, new SortPTRouteMembersAction());
-        MainMenu.add(MainApplication.getMenu().helpMenu, new PTWizardAction());
+        addToPTAssistantmenu(PublicTransportMenu);
         initialiseWizard();
+        initialiseShorcutsForCreatePlatformNode();
     }
 
     /**
@@ -118,14 +125,14 @@ public class PTAssistantPlugin extends Plugin {
      */
     public static void setLastFix(PTRouteSegment segment) {
         lastFix = segment;
-        SwingUtilities.invokeLater(() ->
-        repeatLastFixMenu.setEnabled(segment != null));
+        SwingUtilities.invokeLater(() -> repeatLastFixMenu.setEnabled(segment != null));
     }
 
     /**
      * Used in unit tests
      *
-     * @param segment route segment
+     * @param segment
+     *            route segment
      */
     public static void setLastFixNoGui(PTRouteSegment segment) {
         lastFix = segment;
@@ -138,20 +145,37 @@ public class PTAssistantPlugin extends Plugin {
     public static void addHighlightedRelation(Relation highlightedRelation) {
         highlightedRelations.add(highlightedRelation);
         if (!editHighlightedRelationsMenu.isEnabled()) {
-            SwingUtilities.invokeLater(() ->
-            editHighlightedRelationsMenu.setEnabled(true));
+            SwingUtilities.invokeLater(() -> editHighlightedRelationsMenu.setEnabled(true));
         }
     }
 
     public static void clearHighlightedRelations() {
         highlightedRelations.clear();
-        SwingUtilities.invokeLater(() ->
-        editHighlightedRelationsMenu.setEnabled(false));
+        SwingUtilities.invokeLater(() -> editHighlightedRelationsMenu.setEnabled(false));
+    }
+
+    private void addToPTAssistantmenu(JMenu PublicTransportMenu) {
+        RepeatLastFixAction repeatLastFixAction = new RepeatLastFixAction();
+        EditHighlightedRelationsAction editHighlightedRelationsAction = new EditHighlightedRelationsAction();
+        repeatLastFixMenu = MainMenu.add(PublicTransportMenu, repeatLastFixAction);
+        editHighlightedRelationsMenu = MainMenu.add(PublicTransportMenu, editHighlightedRelationsAction);
+        MainMenu.add(PublicTransportMenu, new SplitRoundaboutAction());
+        MainMenu.add(PublicTransportMenu, new CreatePlatformNodeAction());
+        MainMenu.add(PublicTransportMenu, new SortPTRouteMembersAction());
+        Component sep = new JPopupMenu.Separator();
+        PublicTransportMenu.add(sep);
+        MainMenu.add(PublicTransportMenu, new PTWizardAction());
     }
 
     private static void initialiseWizard() {
-            PTWizardAction wizard = new PTWizardAction();
-            wizard.noDialogBox = true;
+        PTWizardAction wizard = new PTWizardAction();
+        wizard.noDialogBox = true;
         wizard.actionPerformed(null);
+    }
+
+    private static void initialiseShorcutsForCreatePlatformNode() {
+        CreatePlatformShortcutAction shortcut1 = new CreatePlatformShortcutAction();
+        CreatePlatformNodeThroughReplaceAction shortcut2 = new CreatePlatformNodeThroughReplaceAction();
+        ExtractPlatformNodeAction shortcut3 = new ExtractPlatformNodeAction();
     }
 }
